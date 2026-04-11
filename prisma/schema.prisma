@@ -1,0 +1,60 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model Author {
+    id        Int      @id @default(autoincrement())
+    posts     Post[]
+    createdAt DateTime @default(now())
+
+    @@map("authors")
+}
+
+model Post {
+    id             Int             @id @default(autoincrement())
+    author         Author          @relation(fields: [authorId], references: [id])
+    authorId       Int
+    comments       Comment[]
+    userLikedPosts UserLikedPost[]
+    createdAt      DateTime        @default(now())
+
+    @@map("posts")
+}
+
+model UserLikedPost {
+    userId    Int
+    postId    Int
+    user      User     @relation(fields: [userId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id])
+    createdAt DateTime @default(now())
+
+    @@id([userId, postId])
+    @@map("user_liked_post")
+}
+
+model Comment {
+    id        Int      @id @default(autoincrement())
+    post      Post     @relation(fields: [postId], references: [id])
+    postId    Int
+    user      User     @relation(fields: [userId], references: [id])
+    userId    Int
+    text      String
+    createdAt DateTime @default(now())
+
+    @@map("comments")
+}
+
+model User {
+    id             Int             @id @default(autoincrement())
+    username       String          @unique
+    comments       Comment[]
+    userLikedPosts UserLikedPost[]
+    createdAt      DateTime        @default(now())
+
+    @@map("users")
+}

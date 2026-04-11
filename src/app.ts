@@ -1,8 +1,8 @@
 import express from "express"
-import { postsRouter } from "./rotes/postsRouter"
-import { authorsRouter } from "./rotes/authorsRouter"
-import { usersRouter } from "./rotes/usersRouter"
-import { commentsRouter } from "./rotes/commentsRouter"
+import { postsRouter } from "./rotes/postsRouter.js"
+import { authorsRouter } from "./rotes/authorsRouter.js"
+import { usersRouter } from "./rotes/usersRouter.js"
+import { commentsRouter } from "./rotes/commentsRouter.js"
 
 const app = express()
 
