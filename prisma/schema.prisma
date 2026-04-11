@@ -7,21 +7,52 @@ datasource db {
     provider = "postgresql"
 }
 
-model Author {
-    id        Int      @id @default(autoincrement())
-    posts     Post[]
-    createdAt DateTime @default(now())
+enum Role {
+    USER
+    AUTHOR
+}
 
-    @@map("authors")
+enum Provider {
+    google
+}
+
+model User {
+    id             Int             @id @default(autoincrement())
+    username       String?         @unique
+    email          String?         @unique
+    role           Role            @default(USER)
+    comments       Comment[]
+    userLikedPosts UserLikedPost[]
+    posts          Post[]
+    accounts       Account[]
+    createdAt      DateTime        @default(now())
+
+    @@map("users")
+}
+
+model Account {
+    id         Int      @id @default(autoincrement())
+    provider   Provider
+    providerId String
+    user       User     @relation(fields: [userId], references: [id])
+    userId     Int
+    createdAt  DateTime @default(now())
+
+    @@unique([provider, providerId])
+    @@map("accounts")
 }
 
 model Post {
     id             Int             @id @default(autoincrement())
-    author         Author          @relation(fields: [authorId], references: [id])
-    authorId       Int
+    user           User            @relation(fields: [userId], references: [id])
+    userId         Int
     comments       Comment[]
     userLikedPosts UserLikedPost[]
+    title          String
+    content        String
+    published      Boolean         @default(false)
     createdAt      DateTime        @default(now())
+    updatedAt      DateTime        @updatedAt
 
     @@map("posts")
 }
@@ -47,14 +78,4 @@ model Comment {
     createdAt DateTime @default(now())
 
     @@map("comments")
-}
-
-model User {
-    id             Int             @id @default(autoincrement())
-    username       String          @unique
-    comments       Comment[]
-    userLikedPosts UserLikedPost[]
-    createdAt      DateTime        @default(now())
-
-    @@map("users")
 }

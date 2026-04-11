@@ -1,20 +1,26 @@
 import { Router } from "express";
 
-export const usersRouter = Router()
+export const postsRouter = Router()
 
-usersRouter.get("/", (req, res) => {
+postsRouter.get("/", (req, res) => {
     return res.json({
         message: "ALL"
     })
 })
 
-usersRouter.post("/", (req, res) => {
+postsRouter.get("/protected", (req, res) => {
+    res.json({
+        message: "You are in"
+    })
+})
+
+postsRouter.post("/", (req, res) => {
     return res.json({
         message: "UPLOAD"
     })
 })
 
-usersRouter.get("/:id", (req, res) => {
+postsRouter.get("/:id", (req, res) => {
     console.log("test")
     const { id } = req.params
 
@@ -23,7 +29,7 @@ usersRouter.get("/:id", (req, res) => {
     })
 })
 
-usersRouter.put("/:id", (req, res) => {
+postsRouter.put("/:id", (req, res) => {
     const { id } = req.params
 
     return res.json({
@@ -31,7 +37,7 @@ usersRouter.put("/:id", (req, res) => {
     })
 })
 
-usersRouter.delete("/:id", (req, res) => {
+postsRouter.delete("/:id", (req, res) => {
     const { id } = req.params
 
     return res.json({

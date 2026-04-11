@@ -1,20 +1,27 @@
 import { Router } from "express";
+import { VerifyToken } from "../middleware/verifyToken.js";
 
-export const authorsRouter = Router()
+export const usersRouter = Router()
 
-authorsRouter.get("/", (req, res) => {
+usersRouter.get("/", (req, res) => {
     return res.json({
         message: "ALL"
     })
 })
 
-authorsRouter.post("/", (req, res) => {
+usersRouter.post("/", (req, res) => {
     return res.json({
         message: "UPLOAD"
     })
 })
 
-authorsRouter.get("/:id", (req, res) => {
+usersRouter.get("/protected", VerifyToken, (req, res) => {
+    return res.json({
+        message: "Logged in :)!"
+    })
+})
+
+usersRouter.get("/:id", (req, res) => {
     console.log("test")
     const { id } = req.params
 
@@ -23,7 +30,7 @@ authorsRouter.get("/:id", (req, res) => {
     })
 })
 
-authorsRouter.put("/:id", (req, res) => {
+usersRouter.put("/:id", (req, res) => {
     const { id } = req.params
 
     return res.json({
@@ -31,7 +38,7 @@ authorsRouter.put("/:id", (req, res) => {
     })
 })
 
-authorsRouter.delete("/:id", (req, res) => {
+usersRouter.delete("/:id", (req, res) => {
     const { id } = req.params
 
     return res.json({
