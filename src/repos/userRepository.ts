@@ -1,8 +1,7 @@
-import { Provider, User } from "../generated/prisma/client.js";
 import { AccountProviderInput } from "../types/index.js";
 import { prisma } from "./client.js";
 
-export const createUserWithAccount = async (account: AccountProviderInput, email?: string): Promise<User | undefined> => {
+export const createUserWithAccount = async (account: AccountProviderInput, email?: string) => {
     return await prisma.user.create({
         data: {
             email,
@@ -14,7 +13,7 @@ export const createUserWithAccount = async (account: AccountProviderInput, email
 }
 
 export const getAccountWithUser = async (account: AccountProviderInput) => {
-    return prisma.account.findFirst({
+    return await prisma.account.findFirst({
         where: {
             provider: account.provider,
             providerId: account.providerId

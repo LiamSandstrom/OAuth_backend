@@ -1,33 +1,13 @@
 import { Router } from "express";
+import { getPost, showAllPosts, uploadPost } from "../controllers/postController.js";
 
 export const postsRouter = Router()
 
-postsRouter.get("/", (req, res) => {
-    return res.json({
-        message: "ALL"
-    })
-})
+postsRouter.get("/", showAllPosts)
 
-postsRouter.get("/protected", (req, res) => {
-    res.json({
-        message: "You are in"
-    })
-})
+postsRouter.post("/", uploadPost);
 
-postsRouter.post("/", (req, res) => {
-    return res.json({
-        message: "UPLOAD"
-    })
-})
-
-postsRouter.get("/:id", (req, res) => {
-    console.log("test")
-    const { id } = req.params
-
-    return res.json({
-        message: `GET ${id}`
-    })
-})
+postsRouter.get("/:id", getPost);
 
 postsRouter.put("/:id", (req, res) => {
     const { id } = req.params
