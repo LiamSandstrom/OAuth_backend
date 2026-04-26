@@ -10,8 +10,9 @@ authRouter.get("/google", passport.authenticate("google", { scope: ["email", "pr
 authRouter.get("/google/callback",
     passport.authenticate("google", { session: false, failureRedirect: "/auth/failure" }),
     (req, res) => {
+        const user = req.user as User
         const token = jwt.sign(
-            { id: (req.user as User).id },
+            { id: user.id, role: user.role },
             process.env.JWT_SECRET!,
             { expiresIn: '7d' }
         )
@@ -24,9 +25,6 @@ authRouter.get("/google/callback",
         })
         res.redirect("/users/protected")
     })
-
-authRouter.get("/callback", (req, res) => {
-})
 
 authRouter.post("/logout", (req, res) => {
     res.clearCookie("jwt_token");

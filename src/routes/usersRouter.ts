@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { VerifyToken } from "../middleware/verifyToken.js";
+import { prisma } from "../repos/client.js";
 
 export const usersRouter = Router()
 
@@ -15,9 +16,15 @@ usersRouter.post("/", (req, res) => {
     })
 })
 
-usersRouter.get("/protected", VerifyToken, (req, res) => {
+usersRouter.get("/protected", VerifyToken, async (req, res) => {
+    console.log(req.user)
+    const user = await prisma.user.findUnique({
+        where: {
+            id: req.user!.id
+        }
+    })
     return res.json({
-        message: "Logged in :)!"
+        message: `Logged in as USERNAME: ${user?.username}, EMAIL: ${user?.email}, ROLE: ${user?.role}`
     })
 })
 

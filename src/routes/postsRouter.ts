@@ -1,26 +1,14 @@
 import { Router } from "express";
-import { getPost, showAllPosts, uploadPost } from "../controllers/postController.js";
+import { getPost, showAllPosts, updatePost, uploadPost } from "../controllers/postController.js";
+import { commentsRouter } from "./commentsRouter.js";
+import { validateId } from "../middleware/validateId.js";
 
 export const postsRouter = Router()
 
+// Validates id on all :id routes!! order matters
+postsRouter.use("/:id", validateId)
+postsRouter.use("/:id/comments", commentsRouter)
+
 postsRouter.get("/", showAllPosts)
 
-postsRouter.post("/", uploadPost);
-
 postsRouter.get("/:id", getPost);
-
-postsRouter.put("/:id", (req, res) => {
-    const { id } = req.params
-
-    return res.json({
-        message: `CHANGED ${id}`
-    })
-})
-
-postsRouter.delete("/:id", (req, res) => {
-    const { id } = req.params
-
-    return res.json({
-        message: `DELETED ${id}`
-    })
-})

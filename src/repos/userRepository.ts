@@ -1,8 +1,8 @@
 import { AccountProviderInput } from "../types/index.js";
 import { prisma } from "./client.js";
 
-export const createUserWithAccount = async (account: AccountProviderInput, email?: string) => {
-    return await prisma.user.create({
+export const createUserWithAccount = (account: AccountProviderInput, email?: string) => {
+    return prisma.user.create({
         data: {
             email,
             accounts: {
@@ -12,8 +12,8 @@ export const createUserWithAccount = async (account: AccountProviderInput, email
     })
 }
 
-export const getAccountWithUser = async (account: AccountProviderInput) => {
-    return await prisma.account.findFirst({
+export const getAccountWithUser = (account: AccountProviderInput) => {
+    return prisma.account.findFirst({
         where: {
             provider: account.provider,
             providerId: account.providerId
@@ -21,5 +21,11 @@ export const getAccountWithUser = async (account: AccountProviderInput) => {
         include: {
             user: true
         }
+    })
+}
+
+export const getUser = (id: number) => {
+    return prisma.user.findUnique({
+        where: { id }
     })
 }
