@@ -1,7 +1,7 @@
 import { AccountProviderInput } from "../types/index.js";
 import { prisma } from "./client.js";
 
-export const createUserWithAccount = (account: AccountProviderInput, email?: string) => {
+export const createUserWithAccount = (account: AccountProviderInput, email: string) => {
     return prisma.user.create({
         data: {
             email,
@@ -63,6 +63,17 @@ export const getUserWithAccounts = (id: number) => {
         where: { id },
         include: {
             accounts: true
+        }
+    })
+}
+
+export const linkAccountToUser = (account: AccountProviderInput, userId: number) => {
+    return prisma.user.update({
+        where: { id: userId },
+        data: {
+            accounts: {
+                create: account
+            }
         }
     })
 }

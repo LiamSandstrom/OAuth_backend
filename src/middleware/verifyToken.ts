@@ -25,3 +25,23 @@ export const VerifyToken = async (req: Request, res: Response, next: NextFunctio
         return res.status(401).json({ authenticated: false, error: "invalid token" })
     }
 }
+
+//This will try to add the user to the req and will pass to next even on fail
+export const unsafeVerifyToken = async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.cookies.jwt_token
+    if (!token) return next();
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+
+        const result = JwtPayloadSchema.safeParse(decoded)
+        if (!result.success) return next();
+
+        req.user = result.data
+        next();
+    }
+    catch {
+        return next();
+    }
+
+}

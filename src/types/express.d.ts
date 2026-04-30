@@ -10,10 +10,6 @@ declare global {
         interface Request {
             token?: string;
         }
-
-        interface Response {
-            authData?: string | JwtPayload;
-        }
     }
 }
 

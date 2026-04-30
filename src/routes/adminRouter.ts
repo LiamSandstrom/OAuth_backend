@@ -21,5 +21,3 @@ adminRouter.delete("/users/:id", deleteUser)
 
 adminRouter.use("/accounts/:id", validateId(), isAccountOwner)
 adminRouter.delete("/accounts/:id", unlinkProvider)
-
-
