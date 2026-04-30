@@ -24,8 +24,45 @@ export const getAccountWithUser = (account: AccountProviderInput) => {
     })
 }
 
-export const getUser = (id: number) => {
+export const getUserWithEmail = (email: string) => {
+    return prisma.user.findUnique({
+        where: { email }
+    })
+}
+
+export const getUserFromId = (id: number) => {
     return prisma.user.findUnique({
         where: { id }
+    })
+}
+
+export const getAllUsersDb = () => {
+    return prisma.user.findMany();
+}
+
+export const deleteUserFromId = (id: number) => {
+    return prisma.user.delete({
+        where: { id }
+    })
+}
+
+export const deleteProviderFromId = (id: number) => {
+    return prisma.account.delete({
+        where: { id }
+    })
+}
+
+export const getAccountByIdAndUserId = (accountId: number, userId: number) => {
+    return prisma.account.findFirst({
+        where: { id: accountId, userId }
+    })
+}
+
+export const getUserWithAccounts = (id: number) => {
+    return prisma.user.findUnique({
+        where: { id },
+        include: {
+            accounts: true
+        }
     })
 }

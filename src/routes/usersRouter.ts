@@ -1,21 +1,13 @@
 import { Router } from "express";
 import { VerifyToken } from "../middleware/verifyToken.js";
 import { prisma } from "../repos/client.js";
+import { validateId } from "../middleware/validateId.js";
+import { getAllUsers, getUser } from "../controllers/userController.js";
 
 export const usersRouter = Router()
 
-usersRouter.get("/", (req, res) => {
-    return res.json({
-        message: "ALL"
-    })
-})
 
-usersRouter.post("/", (req, res) => {
-    return res.json({
-        message: "UPLOAD"
-    })
-})
-
+usersRouter.get("/", getAllUsers)
 usersRouter.get("/protected", VerifyToken, async (req, res) => {
     console.log(req.user)
     const user = await prisma.user.findUnique({
@@ -28,27 +20,9 @@ usersRouter.get("/protected", VerifyToken, async (req, res) => {
     })
 })
 
-usersRouter.get("/:id", (req, res) => {
-    console.log("test")
-    const { id } = req.params
+//Dynamic routes
+usersRouter.use("/:id", validateId())
 
-    return res.json({
-        message: `GET ${id}`
-    })
-})
+usersRouter.get("/:id", getUser)
 
-usersRouter.put("/:id", (req, res) => {
-    const { id } = req.params
 
-    return res.json({
-        message: `CHANGED ${id}`
-    })
-})
-
-usersRouter.delete("/:id", (req, res) => {
-    const { id } = req.params
-
-    return res.json({
-        message: `DELETED ${id}`
-    })
-})

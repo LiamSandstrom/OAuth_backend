@@ -1,6 +1,6 @@
 import passport from 'passport'
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20'
-import { createUserWithAccount, getAccountWithUser } from '../repos/userRepository.js'
+import { createUserWithAccount, getAccountWithUser, getUserWithEmail } from '../repos/userRepository.js'
 import { AccountProviderInput } from '../types/index.js'
 import { Provider } from '../generated/prisma/enums.js'
 
@@ -18,6 +18,14 @@ passport.use(new GoogleStrategy({
 
             const account = await getAccountWithUser(accountInput)
             if (account) return done(null, account.user)
+
+            const userEmail = profile.emails?.[0].value
+            if (!userEmail) return done(null, false, { messsage: "Something went Wrong :(" })
+
+            const existingUser = await getUserWithEmail(userEmail)
+            if (existingUser) {
+                return done(null, false, { message: "Email already linked to an account. Log in first to link." })
+            }
 
             const user = await createUserWithAccount(accountInput, profile.emails?.[0].value)
             return done(null, user)

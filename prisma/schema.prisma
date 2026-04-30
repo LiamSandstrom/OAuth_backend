@@ -34,7 +34,7 @@ model Account {
     id         Int      @id @default(autoincrement())
     provider   Provider
     providerId String
-    user       User     @relation(fields: [userId], references: [id])
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId     Int
     createdAt  DateTime @default(now())
 
@@ -44,7 +44,7 @@ model Account {
 
 model Post {
     id             Int             @id @default(autoincrement())
-    user           User            @relation(fields: [userId], references: [id])
+    user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId         Int
     comments       Comment[]
     userLikedPosts UserLikedPost[]
@@ -60,8 +60,8 @@ model Post {
 model UserLikedPost {
     userId    Int
     postId    Int
-    user      User     @relation(fields: [userId], references: [id])
-    post      Post     @relation(fields: [postId], references: [id])
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
 
     @@id([userId, postId])
@@ -70,9 +70,9 @@ model UserLikedPost {
 
 model Comment {
     id        Int      @id @default(autoincrement())
-    post      Post     @relation(fields: [postId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId    Int
-    user      User     @relation(fields: [userId], references: [id])
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    Int
     text      String
     createdAt DateTime @default(now())

@@ -17,7 +17,7 @@ export const getPostFromId = (id: number) => {
     })
 }
 
-export const getAllPosts = () => {
+export const getAllPostsDb = () => {
     return prisma.post.findMany()
 }
 

@@ -7,16 +7,18 @@ export const authRouter = Router()
 
 authRouter.get("/google", passport.authenticate("google", { scope: ["email", "profile"] }))
 
-authRouter.get("/google/callback",
-    passport.authenticate("google", { session: false, failureRedirect: "/auth/failure" }),
-    (req, res) => {
-        const user = req.user as User
+authRouter.get("/google/callback", (req, res, next) => {
+    passport.authenticate("google", { session: false }, (err, user: User | false, info) => {
+        if (err) return next(err)
+        if (!user) {
+            const msg = encodeURIComponent(info?.message || "Something went wrong")
+            return res.redirect(`/auth/failure?message=${msg}`)
+        }
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET!,
             { expiresIn: '7d' }
         )
-
         res.cookie("jwt_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -24,7 +26,8 @@ authRouter.get("/google/callback",
             sameSite: "lax"
         })
         res.redirect("/users/protected")
-    })
+    })(req, res, next)
+})
 
 authRouter.post("/logout", (req, res) => {
     res.clearCookie("jwt_token");
@@ -32,7 +35,8 @@ authRouter.post("/logout", (req, res) => {
 })
 
 authRouter.get("/failure", (req, res) => {
+    const msg = req.query.message
     res.json({
-        message: "Something went wrong :("
+        message: msg || "Something went wrong :("
     })
 })

@@ -1,13 +1,11 @@
 import { Request, Response } from "express";
-import { createPost, deletePostById, getAllPosts, getPostFromId, updatePostFromId } from "../repos/postRepository.js";
+import { createPost, deletePostById, getAllPostsDb, getPostFromId, updatePostFromId } from "../repos/postRepository.js";
 import { CreatePostDto } from "../validation/validateCreatePost.js";
-import { getUser } from "../repos/userRepository.js";
-import { Role } from "../generated/prisma/enums.js";
 
 
-export const showAllPosts = async (req: Request, res: Response) => {
+export const getAllPosts = async (req: Request, res: Response) => {
     try {
-        const posts = await getAllPosts();
+        const posts = await getAllPostsDb();
         return res.json(posts)
     }
     catch (ex) {
