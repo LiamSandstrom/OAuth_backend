@@ -77,3 +77,13 @@ export const linkAccountToUser = (account: AccountProviderInput, userId: number)
         }
     })
 }
+
+export const getAllAccountsDb = () => {
+    return prisma.account.findMany();
+}
+
+export const getAccountById = (id: number) => {
+    return prisma.account.findUnique({
+        where: { id }
+    })
+}
