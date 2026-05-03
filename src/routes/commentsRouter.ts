@@ -17,4 +17,3 @@ commentsRouter.use("/:commentId", validateId("commentId"))
 commentsRouter.get("/:commentId", getCommentOnPost)
 commentsRouter.delete("/:commentId", VerifyToken, isPostOrCommentOwner, deleteCommentOnPost)
 commentsRouter.patch("/:commentId", VerifyToken, isCommentOwner, deleteCommentOnPost)
-
