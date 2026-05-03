@@ -2,10 +2,12 @@ import { Router } from "express";
 import { VerifyToken } from "../middleware/verifyToken.js";
 import { prisma } from "../repos/client.js";
 import { validateId } from "../middleware/validateId.js";
-import { getAllUsers, getUser } from "../controllers/userController.js";
+import { deleteUser, getAllUsers, getUser, updateUser } from "../controllers/userController.js";
+import { validate } from "../middleware/validate.js";
+import { UpdateUserSchema } from "../validation/validateUser.js";
+import { isSelf } from "../middleware/isSelf.js";
 
 export const usersRouter = Router()
-
 
 usersRouter.get("/", getAllUsers)
 usersRouter.get("/protected", VerifyToken, async (req, res) => {
@@ -20,9 +22,7 @@ usersRouter.get("/protected", VerifyToken, async (req, res) => {
     })
 })
 
-//Dynamic routes
 usersRouter.use("/:id", validateId())
-
 usersRouter.get("/:id", getUser)
-
-
+usersRouter.patch("/:id", VerifyToken, isSelf, validate(UpdateUserSchema), updateUser)
+usersRouter.delete("/:id", VerifyToken, isSelf, deleteUser)

@@ -1,4 +1,5 @@
 import { AccountProviderInput } from "../types/index.js";
+import { AdminUpdateUserDto, UpdateUserDto, UserDto } from "../validation/validateUser.js";
 import { prisma } from "./client.js";
 
 export const createUserWithAccount = (account: AccountProviderInput, email: string) => {
@@ -87,3 +88,12 @@ export const getAccountById = (id: number) => {
         where: { id }
     })
 }
+
+export const updateUserFromId = (id: number, data: UpdateUserDto | AdminUpdateUserDto) => {
+    return prisma.user.update({
+        where: { id },
+        data
+    })
+}
+
+

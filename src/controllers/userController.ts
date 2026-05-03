@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { deleteProviderFromId, deleteUserFromId, getAllUsersDb, getUserFromId, getUserWithAccounts } from "../repos/userRepository.js";
+import { deleteUserFromId, getAllUsersDb, getUserFromId, getUserWithAccounts, updateUserFromId } from "../repos/userRepository.js";
+import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js";
 
 export const getUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
@@ -36,21 +37,17 @@ export const deleteUser = async (req: Request, res: Response) => {
     }
 }
 
-//delete provider
-export const unlinkProvider = async (req: Request, res: Response) => {
+export const updateUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
-    const userId = req.user!.id
+    const body = req.body as UpdateUserDto | AdminUpdateUserDto
 
     try {
-        const user = await getUserWithAccounts(userId);
-        if (!user) return res.status(401).json({ message: "Account no longer exists" })
-
-        if (user.accounts.length <= 1) return res.status(400).json({ message: "Cannot unlink only remaining account" })
-
-        const result = await deleteProviderFromId(id);
-        return res.json({ message: "Unlinked Provider" })
+        const result = await updateUserFromId(id, body);
+        console.log(result)
+        return res.json({ message: "Updated User" })
     }
     catch (ex) {
         return res.status(500).json({ message: "Internal server error" })
     }
+
 }

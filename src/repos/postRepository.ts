@@ -1,15 +1,13 @@
 import { PostCreateInput, PostUpdateInput } from "../generated/prisma/models.js";
 import { prisma } from "./client.js";
 
-
-
 export const createPost = (post: PostCreateInput) => {
     return prisma.post.create({
         data: post
     })
 }
 
-export const getPostFromId = (id: number) => {
+export const getPostById = (id: number) => {
     return prisma.post.findUnique({
         where: {
             id

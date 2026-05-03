@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createPost, deletePostById, getAllPostsDb, getPostFromId, updatePostFromId } from "../repos/postRepository.js";
+import { createPost, deletePostById, getAllPostsDb, getPostById, updatePostFromId } from "../repos/postRepository.js";
 import { CreatePostDto } from "../validation/validateCreatePost.js";
 
 
@@ -37,7 +37,7 @@ export const getPost = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
 
     try {
-        const post = await getPostFromId(id)
+        const post = await getPostById(id)
         if (!post) return res.status(404).json({ message: "Post not found" })
         return res.json(post)
     }

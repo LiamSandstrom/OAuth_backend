@@ -5,9 +5,8 @@ import { validateId } from "../middleware/validateId.js";
 
 export const postsRouter = Router()
 
-postsRouter.use("/:id", validateId())
-postsRouter.use("/:id/comments", commentsRouter)
-
 postsRouter.get("/", getAllPosts)
 
+postsRouter.use("/:id", validateId())
 postsRouter.get("/:id", getPost);
+postsRouter.use("/:id/comments", commentsRouter)

@@ -1,40 +1,20 @@
 import { Router } from "express";
+import { createCommentOnPost, deleteCommentOnPost, getAllCommentsOnPost, getCommentOnPost } from "../controllers/commentController.js";
+import { validateId } from "../middleware/validateId.js";
+import { validate } from "../middleware/validate.js";
+import { CreateCommentSchema } from "../validation/validateComment.js";
+import { VerifyToken } from "../middleware/verifyToken.js";
+import { isPostOrCommentOwner } from "../middleware/isPostOrCommentOwner.js";
+import { isCommentOwner } from "../middleware/isCommentOwner.js";
 
-export const commentsRouter = Router()
+//This route could just be on posts but i wanted to try subroute with mergeParams
+export const commentsRouter = Router({ mergeParams: true })
 
-commentsRouter.get("/", (req, res) => {
-    return res.json({
-        message: "ALL"
-    })
-})
+commentsRouter.get("/", getAllCommentsOnPost)
+commentsRouter.post("/", VerifyToken, validate(CreateCommentSchema), createCommentOnPost)
 
-commentsRouter.post("/", (req, res) => {
-    return res.json({
-        message: "UPLOAD"
-    })
-})
+commentsRouter.use("/:commentId", validateId("commentId"))
+commentsRouter.get("/:commentId", getCommentOnPost)
+commentsRouter.delete("/:commentId", VerifyToken, isPostOrCommentOwner, deleteCommentOnPost)
+commentsRouter.patch("/:commentId", VerifyToken, isCommentOwner, deleteCommentOnPost)
 
-commentsRouter.get("/:id", (req, res) => {
-    console.log("test")
-    const { id } = req.params
-
-    return res.json({
-        message: `GET ${id}`
-    })
-})
-
-commentsRouter.put("/:id", (req, res) => {
-    const { id } = req.params
-
-    return res.json({
-        message: `CHANGED ${id}`
-    })
-})
-
-commentsRouter.delete("/:id", (req, res) => {
-    const { id } = req.params
-
-    return res.json({
-        message: `DELETED ${id}`
-    })
-})
