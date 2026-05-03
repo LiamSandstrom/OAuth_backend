@@ -25,6 +25,7 @@
     },
     "homepage": "https://github.com/LiamSandstrom/Blog#readme",
     "dependencies": {
+        "@2toad/profanity": "^3.3.0",
         "@prisma/adapter-pg": "^7.7.0",
         "@prisma/client": "^7.7.0",
         "cookie-parser": "^1.4.7",

@@ -70,7 +70,6 @@ export const editCommentOnPost = async (req: Request, res: Response) => {
     const comment = req.body as CreateCommentDto
 
     try {
-
         const result = await updateCommentFromId(commentId, comment)
         if (!result) return res.status(404).json({ message: "Not found" })
         return res.json(result)

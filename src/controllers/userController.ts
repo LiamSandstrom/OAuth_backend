@@ -14,6 +14,17 @@ export const getUser = async (req: Request, res: Response) => {
     }
 }
 
+export const getUserData = async (req: Request, res: Response) => {
+    const userId = req.user!.id
+
+    const user = await getUserFromId(userId)
+    if (!user) return res.status(404).json({ message: "Not Found" })
+
+    return res.json({
+        message: `Logged in as USERNAME: ${user.username}, EMAIL: ${user.email}, ROLE: ${user.role}`
+    })
+}
+
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
         const result = await getAllUsersDb()
