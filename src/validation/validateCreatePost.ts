@@ -6,4 +6,10 @@ export const CreatePostSchema = z.object({
     published: z.boolean().optional(),
 })
 
+export const UpdatePostSchema = CreatePostSchema.partial().refine(
+    obj => Object.keys(obj).length > 0,
+    { message: "At least one field required" }
+)
+
 export type CreatePostDto = z.infer<typeof CreatePostSchema>
+export type UpdatePostDto = z.infer<typeof UpdatePostSchema>

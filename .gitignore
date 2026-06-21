@@ -1,4 +1,5 @@
 node_modules
+/blogapi
 .env
 dist
 /src/generated/prisma

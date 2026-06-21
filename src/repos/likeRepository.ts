@@ -3,7 +3,7 @@ import { prisma } from "./client.js"
 
 export const getLikesByPostId = (postId: number) => {
     return prisma.userLikedPost.count({
-        where: { postId }
+        where: { postId, post: { published: true } }
     })
 }
 

@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { getAccountByIdAndUserId } from "../repos/userRepository.js";
+import { Role } from "../generated/prisma/enums.js";
 
-export const isAccountOwner = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("isAccountOwner")
+export const isAccountOwnerOrAuthor = async (req: Request, res: Response, next: NextFunction) => {
     const accountId = Number(req.params.id)
     const userId = req.user!.id
+
+    if (req.user!.role === Role.AUTHOR) next();
 
     try {
         const found = await getAccountByIdAndUserId(accountId, userId)

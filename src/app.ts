@@ -6,7 +6,6 @@ import "./auth/githubStrategy.js"
 import cookieParser from "cookie-parser"
 import { routes } from "./routes/routes.js"
 
-
 const app = express()
 
 app.use(express.json())

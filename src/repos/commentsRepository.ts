@@ -5,15 +5,18 @@ import { prisma } from "./client.js"
 
 export const getAllCommentsOnPostDb = (postId: number) => {
     return prisma.comment.findMany({
-        where: { postId }
+        where: {
+            postId,
+            post: { published: true }
+        }
     })
 }
-
 export const getCommentOnPostById = (postId: number, commentId: number) => {
     return prisma.comment.findUnique({
         where: {
             postId,
-            id: commentId
+            id: commentId,
+            post: { published: true }
         }
     })
 }
