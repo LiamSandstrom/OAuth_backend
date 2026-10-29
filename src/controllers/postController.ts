@@ -83,8 +83,7 @@ export const deletePost = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
 
     try {
-        const result = await deletePostById(id);
-        console.log(result)
+        await deletePostById(id);
         return res.json({ message: "Deleted Post" })
     }
     catch (ex) {

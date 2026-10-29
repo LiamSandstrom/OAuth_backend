@@ -40,12 +40,6 @@ export const updateCommentFromId = (id: number, data: CreateCommentDto) => {
     })
 }
 
-export const getCommentByIdAndUserId = (commentId: number, userId: number) => {
-    return prisma.comment.findUnique({
-        where: { id: commentId, userId }
-    })
-}
-
 export const getCommentById = (id: number) => {
     return prisma.comment.findUnique({
         where: { id }

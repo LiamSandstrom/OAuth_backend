@@ -1,6 +1,6 @@
 import { AccountProviderInput } from "../types/index.js";
 import { Role } from "../generated/prisma/enums.js";
-import { AdminUpdateUserDto, UpdateUserDto, UserDto } from "../validation/validateUser.js";
+import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js";
 import { prisma } from "./client.js";
 
 export const createUserWithAccount = (account: AccountProviderInput, email: string) => {

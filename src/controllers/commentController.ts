@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { createComment, deleteComment, getAllCommentsOnPostDb, getCommentOnPostById, updateCommentFromId } from "../repos/commentsRepository.js";
 import { handleDbError } from "../helpers/handleDbError.js";
-import { CommentCreateInput, CommentUncheckedCreateInput } from "../generated/prisma/models.js";
+import { CommentUncheckedCreateInput } from "../generated/prisma/models.js";
 import { CreateCommentDto } from "../validation/validateComment.js";
 
 export const getAllCommentsOnPost = async (req: Request, res: Response) => {

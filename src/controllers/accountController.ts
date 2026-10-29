@@ -35,7 +35,7 @@ export const unlinkProvider = async (req: Request, res: Response) => {
 
         if (user.accounts.length <= 1) return res.status(400).json({ message: "Cannot unlink only remaining account" })
 
-        const result = await deleteProviderFromId(id);
+        await deleteProviderFromId(id);
         return res.json({ message: "Unlinked Provider" })
     }
     catch (ex) {

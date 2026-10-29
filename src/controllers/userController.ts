@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteUserFromId, getAllUsersDb, getUserFromId, getUserWithAccounts, updateUserFromId } from "../repos/userRepository.js";
+import { deleteUserFromId, getAllUsersDb, getUserFromId, updateUserFromId } from "../repos/userRepository.js";
 import { handleDbError } from "../helpers/handleDbError.js";
 import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js";
 
@@ -41,7 +41,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
 
     try {
-        const result = await deleteUserFromId(id);
+        await deleteUserFromId(id);
         return res.json({ message: "Deleted User" })
     }
     catch (ex) {
@@ -54,8 +54,7 @@ export const updateUser = async (req: Request, res: Response) => {
     const body = req.body as UpdateUserDto | AdminUpdateUserDto
 
     try {
-        const result = await updateUserFromId(id, body);
-        console.log(result)
+        await updateUserFromId(id, body);
         return res.json({ message: "Updated User" })
     }
     catch (ex) {

@@ -36,29 +36,6 @@ export const updatePostFromId = (id: number, data: UpdatePostDto) => {
     return prisma.post.update({ where: { id }, data })
 }
 
-export const getPostByIdAndUserId = (postId: number, userId: number) => {
-    return prisma.post.findFirst({
-        where: { id: postId, userId }
-    })
-}
-
 export const deletePostById = (id: number) => {
     return prisma.post.delete({ where: { id } })
-}
-
-
-export const getPostByIdAdmin = (id: number) => {
-    return prisma.post.findUnique({ where: { id } })
-}
-
-export const getAllPostsAdminDb = (id: number | undefined, title: string | undefined, page: number | undefined, limit: number | undefined, comments: boolean | undefined) => {
-    return prisma.post.findMany({
-        where: {
-            id,
-            title: title ? { contains: title, mode: "insensitive" } : undefined
-        },
-        skip: page && limit ? (page - 1) * limit : undefined,
-        take: limit,
-        include: { comments }
-    })
 }
