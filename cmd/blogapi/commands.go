@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type Command struct {
 	Help string
@@ -45,22 +48,28 @@ var commands = map[string]Command{
 	},
 	"delete-user": {
 		Help: HelpDeleteUser,
-		Run:  func(args []string, client *Client) {},
+		Run:  deleteUser,
 	},
 	"get-comment": {
 		Help: HelpGetComment,
-		Run:  func(args []string, client *Client) {},
+		Run:  getComment,
 	},
 	"delete-comment": {
 		Help: HelpDeleteComment,
-		Run:  func(args []string, client *Client) {},
+		Run:  deleteComment,
 	},
 }
 
 func printHelp() {
+	names := make([]string, 0, len(commands))
+	for name := range commands {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
 	fmt.Println("Usage:")
-	for _, cmd := range commands {
-		fmt.Println(" ", cmd.Help)
+	for _, name := range names {
+		fmt.Println(" ", commands[name].Help)
 	}
 }
 

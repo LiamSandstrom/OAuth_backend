@@ -25,15 +25,7 @@ func editPost(args []string, client *Client) {
 
 	if *title == "" && *filePath == "" {
 		printHelpCommand(HelpEditPost)
-		os.Exit(0)
-	}
-
-	set := map[string]bool{}
-	fs.Visit(func(f *flag.Flag) { set[f.Name] = true })
-
-	if !set["title"] && !set["filepath"] {
-		printHelpCommand(HelpEditPost)
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	fs.Visit(func(f *flag.Flag) {

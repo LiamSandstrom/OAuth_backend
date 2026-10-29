@@ -37,6 +37,10 @@ func (client *Client) Patch(path string, body io.Reader) (*http.Response, error)
 	return client.BodyReqWithAuth("PATCH", path, body)
 }
 
+func (client *Client) Delete(path string) (*http.Response, error) {
+	return client.BodyReqWithAuth("DELETE", path, nil)
+}
+
 func (client *Client) Get(path string) (*http.Response, error) {
 	req, _ := http.NewRequest("GET", client.baseURL+path, nil)
 	req.Header.Set("Authorization", "Bearer "+client.token)
