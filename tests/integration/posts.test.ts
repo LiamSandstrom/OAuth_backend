@@ -35,6 +35,13 @@ describe("GET /posts", () => {
         expect(res.body.map((p: { title: string }) => p.title)).toEqual(["Post 3", "Post 4"])
     })
 
+    it("ignores empty query params", async () => {
+        await createPost(author.id)
+
+        const res = await request(app).get("/posts?limit=&page=")
+        expect(res.body).toHaveLength(1)
+    })
+
     it("includes comments only when asked", async () => {
         const post = await createPost(author.id)
         await createComment(post.id, author.id)
