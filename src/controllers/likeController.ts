@@ -7,7 +7,6 @@ export const getAllLikesOnPost = async (req: Request, res: Response) => {
 
     try {
         const result = await getLikesByPostId(postId)
-        if (!result) return res.status(404).json({ message: "Not found" })
         return res.json(result)
     } catch (ex) {
         console.log(ex)
