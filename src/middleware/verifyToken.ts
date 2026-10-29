@@ -8,7 +8,7 @@ const JwtPayloadSchema = z.object({
     role: z.enum(Object.values(Role) as [string, ...string[]]).transform(r => r as Role)
 })
 
-export const VerifyToken = async (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.jwt_token
     if (!token) return res.status(401).json({ authenticated: false })
 
@@ -27,7 +27,7 @@ export const VerifyToken = async (req: Request, res: Response, next: NextFunctio
 }
 
 //This will try to add the user to the req and will pass to next even on fail
-export const unsafeVerifyToken = async (req: Request, res: Response, next: NextFunction) => {
+export const optionalVerifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.jwt_token
     if (!token) return next();
 

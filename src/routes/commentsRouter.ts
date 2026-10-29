@@ -3,7 +3,7 @@ import { createCommentOnPost, deleteCommentOnPost, editCommentOnPost, getAllComm
 import { validateId } from "../middleware/validateId.js";
 import { validate } from "../middleware/validate.js";
 import { CreateCommentSchema } from "../validation/validateComment.js";
-import { VerifyToken } from "../middleware/verifyToken.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 import { isPostOrCommentOwner } from "../middleware/isPostOrCommentOwner.js";
 import { isCommentOwner } from "../middleware/isCommentOwner.js";
 import { filterToxicComments } from "../middleware/filterToxicComments.js";
@@ -12,9 +12,9 @@ import { filterToxicComments } from "../middleware/filterToxicComments.js";
 export const commentsRouter = Router({ mergeParams: true })
 
 commentsRouter.get("/", getAllCommentsOnPost)
-commentsRouter.post("/", VerifyToken, validate(CreateCommentSchema), filterToxicComments, createCommentOnPost)
+commentsRouter.post("/", verifyToken, validate(CreateCommentSchema), filterToxicComments, createCommentOnPost)
 
 commentsRouter.use("/:commentId", validateId("commentId"))
 commentsRouter.get("/:commentId", getCommentOnPost)
-commentsRouter.delete("/:commentId", VerifyToken, isPostOrCommentOwner, deleteCommentOnPost)
-commentsRouter.patch("/:commentId", VerifyToken, isCommentOwner, validate(CreateCommentSchema), filterToxicComments, editCommentOnPost)
+commentsRouter.delete("/:commentId", verifyToken, isPostOrCommentOwner, deleteCommentOnPost)
+commentsRouter.patch("/:commentId", verifyToken, isCommentOwner, validate(CreateCommentSchema), filterToxicComments, editCommentOnPost)

@@ -6,7 +6,7 @@ import { isSelf } from "../../src/middleware/isSelf.js"
 import { validateId } from "../../src/middleware/validateId.js"
 import { validate } from "../../src/middleware/validate.js"
 import { verifyApiKey } from "../../src/middleware/verifyApiKey.js"
-import { VerifyToken, unsafeVerifyToken } from "../../src/middleware/verifyToken.js"
+import { verifyToken, optionalVerifyToken } from "../../src/middleware/verifyToken.js"
 import { filterToxicComments } from "../../src/middleware/filterToxicComments.js"
 import { CreateCommentSchema } from "../../src/validation/validateComment.js"
 
@@ -126,13 +126,13 @@ describe("verifyApiKey", () => {
     })
 })
 
-describe("VerifyToken", () => {
+describe("verifyToken", () => {
     const sign = (payload: object, secret = process.env.JWT_SECRET!) => jwt.sign(payload, secret)
     const withToken = (token?: string) => mockReq({ cookies: { jwt_token: token } })
 
     it("sets req.user from a valid token", async () => {
         const req = withToken(sign({ id: 3, role: "AUTHOR" }))
-        await VerifyToken(req, mockRes(), next)
+        await verifyToken(req, mockRes(), next)
         expect(next).toHaveBeenCalledOnce()
         expect(req.user).toEqual({ id: 3, role: "AUTHOR" })
     })
@@ -146,23 +146,23 @@ describe("VerifyToken", () => {
         ["expired token", jwt.sign({ id: 3, role: "USER" }, process.env.JWT_SECRET!, { expiresIn: -10 })],
     ])("401s on %s", async (_, token) => {
         const res = mockRes()
-        await VerifyToken(withToken(token), res, next)
+        await verifyToken(withToken(token), res, next)
         expect(res.status).toHaveBeenCalledWith(401)
         expect(next).not.toHaveBeenCalled()
     })
 })
 
-describe("unsafeVerifyToken", () => {
+describe("optionalVerifyToken", () => {
     it("sets req.user from a valid token", async () => {
         const req = mockReq({ cookies: { jwt_token: jwt.sign({ id: 1, role: "USER" }, process.env.JWT_SECRET!) } })
-        await unsafeVerifyToken(req, mockRes(), next)
+        await optionalVerifyToken(req, mockRes(), next)
         expect(req.user).toEqual({ id: 1, role: "USER" })
         expect(next).toHaveBeenCalledOnce()
     })
 
     it.each([undefined, "garbage"])("continues without a user for token %j", async (token) => {
         const req = mockReq({ cookies: { jwt_token: token } })
-        await unsafeVerifyToken(req, mockRes(), next)
+        await optionalVerifyToken(req, mockRes(), next)
         expect(req.user).toBeUndefined()
         expect(next).toHaveBeenCalledOnce()
     })

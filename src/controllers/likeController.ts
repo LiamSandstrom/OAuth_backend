@@ -15,7 +15,7 @@ export const getAllLikesOnPost = async (req: Request, res: Response) => {
 
 }
 
-export const LikePost = async (req: Request, res: Response) => {
+export const likePost = async (req: Request, res: Response) => {
     const postId = Number(req.params.id)
     const userId = req.user!.id
 
