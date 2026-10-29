@@ -1,6 +1,7 @@
 const REQUIRED_ENV_VARS = [
     "DATABASE_URL",
     "JWT_SECRET",
+    "ADMIN_API_KEY",
     "NODE_ENV",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",

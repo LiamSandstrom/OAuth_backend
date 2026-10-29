@@ -13,7 +13,7 @@ export const isPostOrCommentOwner = async (req: Request, res: Response, next: Ne
         if (!post) return res.status(404).json({ message: "Not Found" })
 
         const comment = await getCommentById(commentId)
-        if (!comment) return res.status(404).json({ message: "Not Found" })
+        if (!comment || comment.postId !== postId) return res.status(404).json({ message: "Not Found" })
 
         if (post.userId !== userId && comment.userId !== userId) return res.status(403).json({ message: "Forbidden" })
 
