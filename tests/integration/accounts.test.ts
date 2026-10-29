@@ -42,7 +42,7 @@ describe("GET /accounts/:id", () => {
     it("refuses someone else's account", async () => {
         const account = await createAccount(other.id)
         const res = await request(app).get(`/accounts/${account.id}`).set("Cookie", authCookie(user))
-        expect(res.status).toBe(401)
+        expect(res.status).toBe(403)
     })
 
     it("lets authors view any account", async () => {
@@ -81,7 +81,7 @@ describe("DELETE /accounts/:id (unlink provider)", () => {
         const victim = await createAccount(other.id)
 
         const res = await request(app).delete(`/accounts/${victim.id}`).set("Cookie", authCookie(user))
-        expect(res.status).toBe(401)
+        expect(res.status).toBe(403)
         expect(await prisma.account.findUnique({ where: { id: victim.id } })).not.toBeNull()
     })
 })

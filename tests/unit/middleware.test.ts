@@ -56,7 +56,7 @@ describe("isSelf", () => {
     it("rejects a different user", () => {
         const res = mockRes()
         isSelf(mockReq({ params: { id: "6" }, user: { id: 5, role: "USER" } }), res, next)
-        expect(res.status).toHaveBeenCalledWith(401)
+        expect(res.status).toHaveBeenCalledWith(403)
         expect(next).not.toHaveBeenCalled()
     })
 })

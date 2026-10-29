@@ -10,7 +10,7 @@ export const isAccountOwnerOrAuthor = async (req: Request, res: Response, next: 
 
     try {
         const found = await getAccountByIdAndUserId(accountId, userId)
-        if (!found) return res.status(401).json({ message: "Unauthorized" })
+        if (!found) return res.status(403).json({ message: "Forbidden" })
 
         next()
     } catch (ex) {

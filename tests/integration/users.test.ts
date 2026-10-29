@@ -70,7 +70,7 @@ describe("PATCH /users/:id", () => {
 
     it("refuses to update someone else", async () => {
         const res = await patch(user, other.id, { username: "hacked" })
-        expect(res.status).toBe(401)
+        expect(res.status).toBe(403)
         expect((await prisma.user.findUnique({ where: { id: other.id } }))?.username).toBe(other.username)
     })
 
@@ -99,7 +99,7 @@ describe("DELETE /users/:id", () => {
 
     it("refuses to delete someone else", async () => {
         const res = await request(app).delete(`/users/${other.id}`).set("Cookie", authCookie(user))
-        expect(res.status).toBe(401)
+        expect(res.status).toBe(403)
         expect(await prisma.user.findUnique({ where: { id: other.id } })).not.toBeNull()
     })
 })
