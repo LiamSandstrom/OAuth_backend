@@ -4,6 +4,7 @@ import { CreatePostDto, UpdatePostDto } from "../validation/validateCreatePost.j
 import { toNum } from "../helpers/toNum.js";
 import { parsePost } from "../helpers/mdToAst.js";
 import { handleDbError } from "../helpers/handleDbError.js";
+import { getFirstAuthor } from "../repos/userRepository.js";
 
 
 export const getAllPosts = (admin = false) => async (req: Request, res: Response) => {
@@ -24,14 +25,16 @@ export const getAllPosts = (admin = false) => async (req: Request, res: Response
 
 export const uploadPost = async (req: Request, res: Response) => {
     const body = req.body as CreatePostDto
-    const userId = 8
 
     try {
+        const author = await getFirstAuthor()
+        if (!author) return res.status(400).json({ message: "No AUTHOR user exists to own the post" })
+
         const post = await createPost({
             title: body.title,
             content: body.content,
             published: body.published ?? false,
-            user: { connect: { id: userId } }
+            user: { connect: { id: author.id } }
         })
 
         return res.status(201).json(post)
