@@ -89,6 +89,13 @@ describe("POST /posts/:id/comments", () => {
         expect(await prisma.comment.count()).toBe(0)
     })
 
+    it("404s on a draft", async () => {
+        const draft = await createPost(author.id, { published: false })
+        const res = await request(app).post(`/posts/${draft.id}/comments`).set("Cookie", authCookie(commenter)).send({ text: "hi" })
+        expect(res.status).toBe(404)
+        expect(await prisma.comment.count()).toBe(0)
+    })
+
     it("404s on a missing post", async () => {
         const res = await request(app).post("/posts/9999/comments").set("Cookie", authCookie(commenter)).send({ text: "hi" })
         expect(res.status).toBe(404)

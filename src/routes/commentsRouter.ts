@@ -7,12 +7,13 @@ import { verifyToken } from "../middleware/verifyToken.js";
 import { isPostOrCommentOwner } from "../middleware/isPostOrCommentOwner.js";
 import { isCommentOwner } from "../middleware/isCommentOwner.js";
 import { filterToxicComments } from "../middleware/filterToxicComments.js";
+import { isPublishedPost } from "../middleware/isPublishedPost.js";
 
 //This route could just be on posts but i wanted to try subroute with mergeParams
 export const commentsRouter = Router({ mergeParams: true })
 
 commentsRouter.get("/", getAllCommentsOnPost)
-commentsRouter.post("/", verifyToken, validate(CreateCommentSchema), filterToxicComments, createCommentOnPost)
+commentsRouter.post("/", verifyToken, isPublishedPost, validate(CreateCommentSchema), filterToxicComments, createCommentOnPost)
 
 commentsRouter.use("/:commentId", validateId("commentId"))
 commentsRouter.get("/:commentId", getCommentOnPost)

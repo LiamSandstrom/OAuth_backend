@@ -52,6 +52,12 @@ describe("likes", () => {
         expect(res.status).toBe(404)
     })
 
+    it("404s when liking a draft", async () => {
+        const draft = await createPost(user.id, { published: false })
+        const res = await request(app).post(`/posts/${draft.id}/likes`).set("Cookie", authCookie(user))
+        expect(res.status).toBe(404)
+    })
+
     it("404s when liking a missing post", async () => {
         const res = await request(app).post("/posts/9999/likes").set("Cookie", authCookie(user))
         expect(res.status).toBe(404)
