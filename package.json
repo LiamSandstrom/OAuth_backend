@@ -9,8 +9,8 @@
         "generate": "npx prisma generate",
         "build": "npm run clean && npm run generate && npx tsc",
         "prestart": "npm run build",
-        "start": "node dist/app.js",
-        "dev": "npm run generate && npx tsc -w & nodemon dist/app.js"
+        "start": "node dist/server.js",
+        "dev": "npm run generate && npx tsc -w & nodemon dist/server.js"
     },
     "repository": {
         "type": "git",
