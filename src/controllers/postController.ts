@@ -7,10 +7,10 @@ import { parsePost } from "../helpers/mdToAst.js";
 
 export const getAllPosts = (admin = false) => async (req: Request, res: Response) => {
     const id = toNum(req.query.id)
-    const title = typeof req.query.title === 'string' ? req.query.title : undefined
+    const title = typeof req.query.title === "string" ? req.query.title : undefined
     const limit = toNum(req.query.limit)
     const page = toNum(req.query.page)
-    const withComments = req.query.withComments === 'true'
+    const withComments = req.query.withComments === "true"
 
     try {
         const posts = await getAllPostsDb(id, title, page, limit, withComments, admin);

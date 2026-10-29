@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod"
 
 export const CreateCommentSchema = z.object({
     text: z.string().min(1).max(255),

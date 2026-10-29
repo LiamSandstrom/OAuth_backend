@@ -1,10 +1,10 @@
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkFrontmatter from 'remark-frontmatter'
-import remarkDirective from 'remark-directive'
-import { matter } from 'vfile-matter'
-import { VFile } from 'vfile'
-import { visit } from 'unist-util-visit'
+import { unified } from "unified"
+import remarkParse from "remark-parse"
+import remarkFrontmatter from "remark-frontmatter"
+import remarkDirective from "remark-directive"
+import { matter } from "vfile-matter"
+import { VFile } from "vfile"
+import { visit } from "unist-util-visit"
 
 const processor = unified()
     .use(remarkParse)

@@ -1,6 +1,6 @@
 
 import { Role } from "../generated/prisma/enums.js";
-import { z } from 'zod'
+import { z } from "zod"
 
 export const UserSchema = z.object({
     username: z.string().min(3).max(25),

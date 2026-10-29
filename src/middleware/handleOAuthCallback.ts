@@ -13,7 +13,7 @@ export const handleOAuthCallback = (provider: string) => (req: Request, res: Res
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET!,
-            { expiresIn: '7d' }
+            { expiresIn: "7d" }
         )
         res.cookie("jwt_token", token, {
             httpOnly: true,
