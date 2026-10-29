@@ -40,3 +40,14 @@ describe("POST /auth/logout", () => {
         expect(res.headers["set-cookie"][0]).toMatch(/^jwt_token=;.*Expires=Thu, 01 Jan 1970/)
     })
 })
+
+describe("rate limiting", () => {
+    it("blocks clients that hit /auth too often", async () => {
+        const statuses: number[] = []
+        for (let i = 0; i < 25; i++) statuses.push((await request(app).get("/auth/failure")).status)
+
+        expect(statuses).toContain(429)
+        const res = await request(app).get("/auth/failure")
+        expect(res.body.message).toBe("Too many requests, try again later")
+    })
+})

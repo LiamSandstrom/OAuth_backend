@@ -9,6 +9,23 @@ describe("app", () => {
         expect(res.body).toEqual({ status: "ok" })
     })
 
+    it("sets security headers", async () => {
+        const res = await request(app).get("/health")
+        expect(res.headers["x-content-type-options"]).toBe("nosniff")
+        expect(res.headers["x-powered-by"]).toBeUndefined()
+    })
+
+    it("allows credentialed CORS from the configured origin", async () => {
+        const res = await request(app).options("/posts").set("Origin", "http://localhost:5173")
+        expect(res.headers["access-control-allow-origin"]).toBe("http://localhost:5173")
+        expect(res.headers["access-control-allow-credentials"]).toBe("true")
+    })
+
+    it("doesn't allow CORS from other origins", async () => {
+        const res = await request(app).options("/posts").set("Origin", "https://evil.example")
+        expect(res.headers["access-control-allow-origin"]).toBeUndefined()
+    })
+
     it("returns a JSON 404 for unknown routes", async () => {
         const res = await request(app).get("/does-not-exist")
         expect(res.status).toBe(404)
