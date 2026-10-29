@@ -6,7 +6,7 @@ export const isAccountOwnerOrAuthor = async (req: Request, res: Response, next: 
     const accountId = Number(req.params.id)
     const userId = req.user!.id
 
-    if (req.user!.role === Role.AUTHOR) next();
+    if (req.user!.role === Role.AUTHOR) return next();
 
     try {
         const found = await getAccountByIdAndUserId(accountId, userId)
