@@ -1,4 +1,3 @@
-import { JwtPayload } from "jsonwebtoken";
 import { Role } from "../generated/prisma/enums.ts";
 
 declare global {
@@ -6,9 +5,6 @@ declare global {
         interface User {
             id: number
             role: Role
-        }
-        interface Request {
-            token?: string;
         }
     }
 }

@@ -5,7 +5,7 @@ export const notFound = (req: Request, res: Response) => {
     res.status(404).json({ message: "Not found" })
 }
 
-export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
         if (err.code === "P2025" || err.code === "P2003") return res.status(404).json({ message: "Not found" })
         if (err.code === "P2002") return res.status(409).json({ message: "Already exists" })
