@@ -93,10 +93,12 @@ describe("validate", () => {
         const res = mockRes()
         validate(CreateCommentSchema)(mockReq({ body: { text: "" } }), res, next)
         expect(res.status).toHaveBeenCalledWith(400)
-        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-            message: "Validation failed",
-            errors: { text: expect.any(Array) },
-        }))
+        expect(res.json).toHaveBeenCalledWith(
+            expect.objectContaining({
+                message: "Validation failed",
+                errors: { text: expect.any(Array) }
+            })
+        )
         expect(next).not.toHaveBeenCalled()
     })
 })
@@ -109,7 +111,7 @@ describe("verifyApiKey", () => {
         expect(next).toHaveBeenCalledOnce()
     })
 
-    it.each([undefined, "Bearer wrong", process.env.ADMIN_API_KEY])("rejects authorization header %j", (header) => {
+    it.each([undefined, "Bearer wrong", process.env.ADMIN_API_KEY])("rejects authorization header %j", header => {
         const res = mockRes()
         verifyApiKey(withKey(header), res, next)
         expect(res.status).toHaveBeenCalledWith(401)
@@ -143,7 +145,7 @@ describe("verifyToken", () => {
         ["wrong secret", sign({ id: 3, role: "USER" }, "other-secret")],
         ["invalid payload", sign({ id: "3", role: "USER" })],
         ["unknown role", sign({ id: 3, role: "SUPERADMIN" })],
-        ["expired token", jwt.sign({ id: 3, role: "USER" }, process.env.JWT_SECRET!, { expiresIn: -10 })],
+        ["expired token", jwt.sign({ id: 3, role: "USER" }, process.env.JWT_SECRET!, { expiresIn: -10 })]
     ])("401s on %s", async (_, token) => {
         const res = mockRes()
         await verifyToken(withToken(token), res, next)
@@ -160,7 +162,7 @@ describe("optionalVerifyToken", () => {
         expect(next).toHaveBeenCalledOnce()
     })
 
-    it.each([undefined, "garbage"])("continues without a user for token %j", async (token) => {
+    it.each([undefined, "garbage"])("continues without a user for token %j", async token => {
         const req = mockReq({ cookies: { jwt_token: token } })
         await optionalVerifyToken(req, mockRes(), next)
         expect(req.user).toBeUndefined()

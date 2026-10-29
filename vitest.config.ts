@@ -9,15 +9,15 @@ export default defineConfig({
         coverage: {
             provider: "v8",
             include: ["src/**/*.ts"],
-            exclude: ["src/generated/**", "src/types/**", "src/server.ts"],
+            exclude: ["src/generated/**", "src/types/**", "src/server.ts"]
         },
         projects: [
             {
                 extends: true,
                 test: {
                     name: "unit",
-                    include: ["tests/unit/**/*.test.ts"],
-                },
+                    include: ["tests/unit/**/*.test.ts"]
+                }
             },
             {
                 extends: true,
@@ -26,9 +26,9 @@ export default defineConfig({
                     include: ["tests/integration/**/*.test.ts"],
                     globalSetup: ["tests/integration/globalSetup.ts"],
                     setupFiles: ["tests/integration/setup.ts"],
-                    fileParallelism: false,
-                },
-            },
-        ],
-    },
+                    fileParallelism: false
+                }
+            }
+        ]
+    }
 })

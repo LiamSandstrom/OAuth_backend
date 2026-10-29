@@ -8,7 +8,7 @@ const REQUIRED_ENV_VARS = [
     "GOOGLE_CALLBACK_URL",
     "GITHUB_CLIENT_ID",
     "GITHUB_CLIENT_SECRET",
-    "GITHUB_CALLBACK_URL",
+    "GITHUB_CALLBACK_URL"
 ]
 
 const validateEnvFile = () => {
@@ -19,4 +19,4 @@ const validateEnvFile = () => {
     }
 }
 
-validateEnvFile();
+validateEnvFile()

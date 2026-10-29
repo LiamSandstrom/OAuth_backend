@@ -2,7 +2,6 @@ import { CommentUncheckedCreateInput } from "../generated/prisma/models.js"
 import { CreateCommentDto } from "../validation/validateComment.js"
 import { prisma } from "./client.js"
 
-
 export const getAllCommentsOnPostDb = (postId: number) => {
     return prisma.comment.findMany({
         where: {

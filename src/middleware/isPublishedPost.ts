@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
-import { getPostById } from "../repos/postRepository.js";
+import { NextFunction, Request, Response } from "express"
+import { getPostById } from "../repos/postRepository.js"
 
 export const isPublishedPost = async (req: Request, res: Response, next: NextFunction) => {
     const postId = Number(req.params.id)

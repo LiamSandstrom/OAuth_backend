@@ -1,6 +1,6 @@
-import { PostCreateInput } from "../generated/prisma/models.js";
-import { UpdatePostDto } from "../validation/validateCreatePost.js";
-import { prisma } from "./client.js";
+import { PostCreateInput } from "../generated/prisma/models.js"
+import { UpdatePostDto } from "../validation/validateCreatePost.js"
+import { prisma } from "./client.js"
 
 export const createPost = (post: PostCreateInput) => {
     return prisma.post.create({ data: post })

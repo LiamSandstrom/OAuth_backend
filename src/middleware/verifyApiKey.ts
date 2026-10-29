@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express"
 
 export const verifyApiKey = (req: Request, res: Response, next: NextFunction) => {
     const apiKey = process.env.ADMIN_API_KEY

@@ -7,7 +7,7 @@ vi.mock("../../src/repos/userRepository.js", () => ({
     getAccountWithUser: vi.fn(),
     getUserWithEmail: vi.fn(),
     linkAccountToUser: vi.fn(),
-    createUserWithAccount: vi.fn(),
+    createUserWithAccount: vi.fn()
 }))
 
 const profile = { id: "gh-123", provider: "github", emails: [{ value: "me@example.com" }] }
@@ -27,7 +27,9 @@ describe("oauthVerify when already logged in (linking a provider)", () => {
     it("refuses if the provider is already linked to this user", async () => {
         vi.mocked(repo.getAccountWithUser).mockResolvedValue({ user } as never)
         await oauthVerify(loggedIn, profile, done)
-        expect(done).toHaveBeenCalledWith(null, false, { message: expect.stringContaining("already linked to your account") })
+        expect(done).toHaveBeenCalledWith(null, false, {
+            message: expect.stringContaining("already linked to your account")
+        })
         expect(repo.linkAccountToUser).not.toHaveBeenCalled()
     })
 
@@ -75,7 +77,10 @@ describe("oauthVerify when anonymous (login / sign up)", () => {
         vi.mocked(repo.getUserWithEmail).mockResolvedValue(null)
         vi.mocked(repo.createUserWithAccount).mockResolvedValue(created as never)
         await oauthVerify(anonymous, profile, done)
-        expect(repo.createUserWithAccount).toHaveBeenCalledWith({ provider: "github", providerId: "gh-123" }, "me@example.com")
+        expect(repo.createUserWithAccount).toHaveBeenCalledWith(
+            { provider: "github", providerId: "gh-123" },
+            "me@example.com"
+        )
         expect(done).toHaveBeenCalledWith(null, created)
     })
 })

@@ -77,7 +77,7 @@ describe("POST /posts/:id/comments", () => {
 
     it.each([
         ["empty", ""],
-        ["too long", "a".repeat(256)],
+        ["too long", "a".repeat(256)]
     ])("400s on %s text", async (_, text) => {
         const res = await comment(commenter, { text })
         expect(res.status).toBe(400)
@@ -91,13 +91,19 @@ describe("POST /posts/:id/comments", () => {
 
     it("404s on a draft", async () => {
         const draft = await createPost(author.id, { published: false })
-        const res = await request(app).post(`/posts/${draft.id}/comments`).set("Cookie", authCookie(commenter)).send({ text: "hi" })
+        const res = await request(app)
+            .post(`/posts/${draft.id}/comments`)
+            .set("Cookie", authCookie(commenter))
+            .send({ text: "hi" })
         expect(res.status).toBe(404)
         expect(await prisma.comment.count()).toBe(0)
     })
 
     it("404s on a missing post", async () => {
-        const res = await request(app).post("/posts/9999/comments").set("Cookie", authCookie(commenter)).send({ text: "hi" })
+        const res = await request(app)
+            .post("/posts/9999/comments")
+            .set("Cookie", authCookie(commenter))
+            .send({ text: "hi" })
         expect(res.status).toBe(404)
     })
 })

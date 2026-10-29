@@ -13,7 +13,7 @@ describe("API key", () => {
     it.each([
         ["missing", {}],
         ["wrong", { Authorization: "Bearer nope" }],
-        ["not a bearer token", { Authorization: process.env.ADMIN_API_KEY! }],
+        ["not a bearer token", { Authorization: process.env.ADMIN_API_KEY! }]
     ])("rejects a %s key", async (_, headers) => {
         const res = await request(app).get("/admin/posts").set(headers)
         expect(res.status).toBe(401)

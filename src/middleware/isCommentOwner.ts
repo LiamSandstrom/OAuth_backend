@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
-import { getCommentById } from "../repos/commentsRepository.js";
+import { NextFunction, Request, Response } from "express"
+import { getCommentById } from "../repos/commentsRepository.js"
 
 export const isCommentOwner = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user!.id

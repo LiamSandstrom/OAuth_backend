@@ -1,8 +1,15 @@
-import { Request, Response } from "express";
-import { createComment, deleteComment, getAllCommentsDb, getAllCommentsOnPostDb, getCommentOnPostById, updateCommentFromId } from "../repos/commentsRepository.js";
-import { CommentUncheckedCreateInput } from "../generated/prisma/models.js";
-import { CreateCommentDto } from "../validation/validateComment.js";
-import { toNum } from "../helpers/toNum.js";
+import { Request, Response } from "express"
+import {
+    createComment,
+    deleteComment,
+    getAllCommentsDb,
+    getAllCommentsOnPostDb,
+    getCommentOnPostById,
+    updateCommentFromId
+} from "../repos/commentsRepository.js"
+import { CommentUncheckedCreateInput } from "../generated/prisma/models.js"
+import { CreateCommentDto } from "../validation/validateComment.js"
+import { toNum } from "../helpers/toNum.js"
 
 export const getAllComments = async (req: Request, res: Response) => {
     const id = toNum(req.query.id)

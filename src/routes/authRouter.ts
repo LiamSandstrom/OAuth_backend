@@ -11,7 +11,7 @@ authRouter.get("/google/callback", handleOAuthCallback("google"))
 authRouter.get("/github/callback", handleOAuthCallback("github"))
 
 authRouter.post("/logout", (req, res) => {
-    res.clearCookie("jwt_token");
+    res.clearCookie("jwt_token")
     res.json({ message: "Logout successful" })
 })
 

@@ -9,14 +9,8 @@
         "skipLibCheck": true,
         "isolatedModules": true,
         "sourceMap": true,
-        "strict": true,
+        "strict": true
     },
-    "include": [
-        "src",
-        "types"
-    ],
-    "exclude": [
-        "prisma.config.ts",
-        "node_modules"
-    ]
+    "include": ["src", "types"],
+    "exclude": ["prisma.config.ts", "node_modules"]
 }

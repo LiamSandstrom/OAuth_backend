@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { deleteProviderFromId, getAccountById, getAllAccountsDb, getUserWithAccounts } from "../repos/userRepository.js";
+import { Request, Response } from "express"
+import { deleteProviderFromId, getAccountById, getAllAccountsDb, getUserWithAccounts } from "../repos/userRepository.js"
 
 export const getAllAccounts = async (req: Request, res: Response) => {
     const result = await getAllAccountsDb()
@@ -18,11 +18,11 @@ export const unlinkProvider = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
     const userId = req.user!.id
 
-    const user = await getUserWithAccounts(userId);
+    const user = await getUserWithAccounts(userId)
     if (!user) return res.status(401).json({ message: "Account no longer exists" })
 
     if (user.accounts.length <= 1) return res.status(400).json({ message: "Cannot unlink only remaining account" })
 
-    await deleteProviderFromId(id);
+    await deleteProviderFromId(id)
     return res.json({ message: "Unlinked Provider" })
 }

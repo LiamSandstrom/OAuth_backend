@@ -9,8 +9,9 @@ vi.mock("passport", () => ({ default: { authenticate: vi.fn() } }))
 type AuthCallback = (err: Error | null, user: unknown, info?: { message: string }) => void
 
 const passportResolves = (...args: Parameters<AuthCallback>) => {
-    vi.mocked(passport.authenticate).mockImplementation(((_: string, __: object, cb: AuthCallback) =>
-        () => cb(...args)) as never)
+    vi.mocked(passport.authenticate).mockImplementation(
+        ((_: string, __: object, cb: AuthCallback) => () => cb(...args)) as never
+    )
 }
 
 const mockRes = () => {
@@ -38,10 +39,14 @@ describe("handleOAuthCallback", () => {
         const res = mockRes()
         handleOAuthCallback("google")({} as Request, res, next)
 
-        expect(res.cookie).toHaveBeenCalledWith("jwt_token", expect.any(String), expect.objectContaining({
-            httpOnly: true,
-            sameSite: "lax",
-        }))
+        expect(res.cookie).toHaveBeenCalledWith(
+            "jwt_token",
+            expect.any(String),
+            expect.objectContaining({
+                httpOnly: true,
+                sameSite: "lax"
+            })
+        )
         const token = vi.mocked(res.cookie).mock.calls[0][1]
         expect(jwt.verify(token, process.env.JWT_SECRET!)).toMatchObject({ id: 7, role: "AUTHOR" })
         expect(res.redirect).toHaveBeenCalledWith("/users/protected")

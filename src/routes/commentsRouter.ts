@@ -1,21 +1,41 @@
-import { Router } from "express";
-import { createCommentOnPost, deleteCommentOnPost, editCommentOnPost, getAllCommentsOnPost, getCommentOnPost } from "../controllers/commentController.js";
-import { validateId } from "../middleware/validateId.js";
-import { validate } from "../middleware/validate.js";
-import { CreateCommentSchema } from "../validation/validateComment.js";
-import { verifyToken } from "../middleware/verifyToken.js";
-import { isPostOrCommentOwner } from "../middleware/isPostOrCommentOwner.js";
-import { isCommentOwner } from "../middleware/isCommentOwner.js";
-import { filterToxicComments } from "../middleware/filterToxicComments.js";
-import { isPublishedPost } from "../middleware/isPublishedPost.js";
+import { Router } from "express"
+import {
+    createCommentOnPost,
+    deleteCommentOnPost,
+    editCommentOnPost,
+    getAllCommentsOnPost,
+    getCommentOnPost
+} from "../controllers/commentController.js"
+import { validateId } from "../middleware/validateId.js"
+import { validate } from "../middleware/validate.js"
+import { CreateCommentSchema } from "../validation/validateComment.js"
+import { verifyToken } from "../middleware/verifyToken.js"
+import { isPostOrCommentOwner } from "../middleware/isPostOrCommentOwner.js"
+import { isCommentOwner } from "../middleware/isCommentOwner.js"
+import { filterToxicComments } from "../middleware/filterToxicComments.js"
+import { isPublishedPost } from "../middleware/isPublishedPost.js"
 
 //This route could just be on posts but i wanted to try subroute with mergeParams
 export const commentsRouter = Router({ mergeParams: true })
 
 commentsRouter.get("/", getAllCommentsOnPost)
-commentsRouter.post("/", verifyToken, isPublishedPost, validate(CreateCommentSchema), filterToxicComments, createCommentOnPost)
+commentsRouter.post(
+    "/",
+    verifyToken,
+    isPublishedPost,
+    validate(CreateCommentSchema),
+    filterToxicComments,
+    createCommentOnPost
+)
 
 commentsRouter.use("/:commentId", validateId("commentId"))
 commentsRouter.get("/:commentId", getCommentOnPost)
 commentsRouter.delete("/:commentId", verifyToken, isPostOrCommentOwner, deleteCommentOnPost)
-commentsRouter.patch("/:commentId", verifyToken, isCommentOwner, validate(CreateCommentSchema), filterToxicComments, editCommentOnPost)
+commentsRouter.patch(
+    "/:commentId",
+    verifyToken,
+    isCommentOwner,
+    validate(CreateCommentSchema),
+    filterToxicComments,
+    editCommentOnPost
+)

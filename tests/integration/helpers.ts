@@ -8,7 +8,7 @@ const unique = () => `${Date.now().toString(36)}${seq++}`
 export async function createUser(role: Role = Role.USER) {
     const id = unique()
     return prisma.user.create({
-        data: { username: `user_${id}`, email: `${id}@test.local`, role },
+        data: { username: `user_${id}`, email: `${id}@test.local`, role }
     })
 }
 
@@ -22,8 +22,8 @@ export async function createPost(
             content: "---\ntags: [test]\n---\n# Hello\n\nSome body text.",
             published: true,
             userId,
-            ...overrides,
-        },
+            ...overrides
+        }
     })
 }
 
@@ -33,7 +33,7 @@ export async function createComment(postId: number, userId: number, text = "Nice
 
 export async function createAccount(userId: number, provider: Provider = Provider.google) {
     return prisma.account.create({
-        data: { userId, provider, providerId: unique() },
+        data: { userId, provider, providerId: unique() }
     })
 }
 

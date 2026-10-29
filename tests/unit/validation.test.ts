@@ -13,7 +13,7 @@ describe("CreateCommentSchema", () => {
         ["empty text", { text: "" }],
         ["too long text", { text: "a".repeat(256) }],
         ["missing text", {}],
-        ["non-string text", { text: 42 }],
+        ["non-string text", { text: 42 }]
     ])("rejects %s", (_, body) => {
         expect(CreateCommentSchema.safeParse(body).success).toBe(false)
     })
@@ -32,7 +32,7 @@ describe("CreatePostSchema", () => {
         ["short title", { ...valid, title: "Hi" }],
         ["long title", { ...valid, title: "a".repeat(101) }],
         ["short content", { ...valid, content: "short" }],
-        ["non-boolean published", { ...valid, published: "yes" }],
+        ["non-boolean published", { ...valid, published: "yes" }]
     ])("rejects %s", (_, body) => {
         expect(CreatePostSchema.safeParse(body).success).toBe(false)
     })

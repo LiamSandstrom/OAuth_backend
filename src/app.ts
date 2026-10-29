@@ -1,5 +1,5 @@
 import express from "express"
-import "dotenv/config";
+import "dotenv/config"
 import "./config/validateEnvFile.js"
 import "./auth/googleStrategy.js"
 import "./auth/githubStrategy.js"
@@ -18,6 +18,6 @@ app.use(cookieParser())
 
 if (process.env.NODE_ENV === "development") app.set("json spaces", 2)
 
-app.use("/", routes);
+app.use("/", routes)
 app.use(notFound)
 app.use(errorHandler)

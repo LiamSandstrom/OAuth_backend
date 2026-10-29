@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
-import z from "zod";
-import { Role } from "../generated/prisma/enums.js";
+import z from "zod"
+import { Role } from "../generated/prisma/enums.js"
 
 const JwtPayloadSchema = z.object({
     id: z.number(),
@@ -19,9 +19,8 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
         if (!result.success) return res.status(401).json({ message: "Unauthorized" })
 
         req.user = result.data
-        next();
-    }
-    catch {
+        next()
+    } catch {
         return res.status(401).json({ message: "Invalid token" })
     }
 }
@@ -29,19 +28,17 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 //This will try to add the user to the req and will pass to next even on fail
 export const optionalVerifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.jwt_token
-    if (!token) return next();
+    if (!token) return next()
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!)
 
         const result = JwtPayloadSchema.safeParse(decoded)
-        if (!result.success) return next();
+        if (!result.success) return next()
 
         req.user = result.data
-        next();
+        next()
+    } catch {
+        return next()
     }
-    catch {
-        return next();
-    }
-
 }

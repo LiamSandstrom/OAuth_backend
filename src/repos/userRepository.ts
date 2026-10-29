@@ -1,7 +1,7 @@
-import { AccountProviderInput } from "../types/index.js";
-import { Role } from "../generated/prisma/enums.js";
-import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js";
-import { prisma } from "./client.js";
+import { AccountProviderInput } from "../types/index.js"
+import { Role } from "../generated/prisma/enums.js"
+import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js"
+import { prisma } from "./client.js"
 
 export const createUserWithAccount = (account: AccountProviderInput, email: string) => {
     return prisma.user.create({
@@ -39,7 +39,7 @@ export const getUserFromId = (id: number) => {
 }
 
 export const getAllUsersDb = () => {
-    return prisma.user.findMany();
+    return prisma.user.findMany()
 }
 
 export const deleteUserFromId = (id: number) => {
@@ -81,7 +81,7 @@ export const linkAccountToUser = (account: AccountProviderInput, userId: number)
 }
 
 export const getAllAccountsDb = () => {
-    return prisma.account.findMany();
+    return prisma.account.findMany()
 }
 
 export const getAccountById = (id: number) => {
@@ -96,7 +96,6 @@ export const updateUserFromId = (id: number, data: UpdateUserDto | AdminUpdateUs
         data
     })
 }
-
 
 export const getFirstAuthor = () => {
     return prisma.user.findFirst({

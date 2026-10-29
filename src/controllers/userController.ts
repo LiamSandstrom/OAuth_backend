@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { deleteUserFromId, getAllUsersDb, getUserFromId, updateUserFromId } from "../repos/userRepository.js";
-import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js";
+import { Request, Response } from "express"
+import { deleteUserFromId, getAllUsersDb, getUserFromId, updateUserFromId } from "../repos/userRepository.js"
+import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js"
 
 export const getUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
@@ -30,7 +30,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
 
-    await deleteUserFromId(id);
+    await deleteUserFromId(id)
     return res.json({ message: "Deleted User" })
 }
 
@@ -38,6 +38,6 @@ export const updateUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
     const body = req.body as UpdateUserDto | AdminUpdateUserDto
 
-    await updateUserFromId(id, body);
+    await updateUserFromId(id, body)
     return res.json({ message: "Updated User" })
 }

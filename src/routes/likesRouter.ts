@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { getAllLikesOnPost, likePost, removeLike } from "../controllers/likeController.js";
-import { verifyToken } from "../middleware/verifyToken.js";
-import { isPublishedPost } from "../middleware/isPublishedPost.js";
+import { Router } from "express"
+import { getAllLikesOnPost, likePost, removeLike } from "../controllers/likeController.js"
+import { verifyToken } from "../middleware/verifyToken.js"
+import { isPublishedPost } from "../middleware/isPublishedPost.js"
 
 export const likesRouter = Router({ mergeParams: true })
 

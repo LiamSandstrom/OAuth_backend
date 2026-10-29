@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { prisma } from "../repos/client.js";
+import { Request, Response } from "express"
+import { prisma } from "../repos/client.js"
 
 export const getHealth = async (req: Request, res: Response) => {
     try {

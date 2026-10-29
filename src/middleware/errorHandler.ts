@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
-import { Prisma } from "../generated/prisma/client.js";
+import { NextFunction, Request, Response } from "express"
+import { Prisma } from "../generated/prisma/client.js"
 
 export const notFound = (req: Request, res: Response) => {
     res.status(404).json({ message: "Not found" })

@@ -9,6 +9,6 @@ export default function setup() {
 
     execSync("npx prisma migrate deploy", {
         stdio: "inherit",
-        env: { ...process.env, DATABASE_URL: databaseUrl },
+        env: { ...process.env, DATABASE_URL: databaseUrl }
     })
 }

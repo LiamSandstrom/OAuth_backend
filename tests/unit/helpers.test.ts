@@ -7,7 +7,7 @@ describe("toNum", () => {
         expect(toNum("42")).toBe(42)
     })
 
-    it.each([undefined, "", " ", "abc", ["1", "2"]])("returns undefined for %j", (value) => {
+    it.each([undefined, "", " ", "abc", ["1", "2"]])("returns undefined for %j", value => {
         expect(toNum(value)).toBeUndefined()
     })
 })

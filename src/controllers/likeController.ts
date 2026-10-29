@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { getLikesByPostId, likePostByIds, removeLikeByIds } from "../repos/likeRepository.js";
+import { Request, Response } from "express"
+import { getLikesByPostId, likePostByIds, removeLikeByIds } from "../repos/likeRepository.js"
 
 export const getAllLikesOnPost = async (req: Request, res: Response) => {
     const postId = Number(req.params.id)
