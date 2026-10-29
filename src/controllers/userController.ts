@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { deleteUserFromId, getAllUsersDb, getUserFromId, getUserWithAccounts, updateUserFromId } from "../repos/userRepository.js";
+import { handleDbError } from "../helpers/handleDbError.js";
 import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js";
 
 export const getUser = async (req: Request, res: Response) => {
@@ -44,7 +45,7 @@ export const deleteUser = async (req: Request, res: Response) => {
         return res.json({ message: "Deleted User" })
     }
     catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
+        return handleDbError(ex, res)
     }
 }
 
@@ -58,7 +59,7 @@ export const updateUser = async (req: Request, res: Response) => {
         return res.json({ message: "Updated User" })
     }
     catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
+        return handleDbError(ex, res)
     }
 
 }

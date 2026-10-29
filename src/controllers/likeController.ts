@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { handleDbError } from "../helpers/handleDbError.js";
 import { getLikesByPostId, likePostByIds, removeLikeByIds } from "../repos/likeRepository.js";
 
 export const getAllLikesOnPost = async (req: Request, res: Response) => {
@@ -24,8 +25,7 @@ export const LikePost = async (req: Request, res: Response) => {
         if (!result) return res.status(404).json({ message: "Not found" })
         return res.json(result)
     } catch (ex) {
-        console.log(ex)
-        return res.status(500).json({ message: "Internal server error" })
+        return handleDbError(ex, res)
     }
 }
 
@@ -38,8 +38,7 @@ export const removeLike = async (req: Request, res: Response) => {
         if (!result) return res.status(404).json({ message: "Not found" })
         return res.json(result)
     } catch (ex) {
-        console.log(ex)
-        return res.status(500).json({ message: "Internal server error" })
+        return handleDbError(ex, res)
     }
 }
 

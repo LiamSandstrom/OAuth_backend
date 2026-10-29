@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { createComment, deleteComment, getAllCommentsOnPostDb, getCommentOnPostById, updateCommentFromId } from "../repos/commentsRepository.js";
+import { handleDbError } from "../helpers/handleDbError.js";
 import { CommentCreateInput, CommentUncheckedCreateInput } from "../generated/prisma/models.js";
 import { CreateCommentDto } from "../validation/validateComment.js";
 
@@ -46,7 +47,7 @@ export const createCommentOnPost = async (req: Request, res: Response) => {
         if (!result) return res.status(404).json({ message: "Not found" })
         return res.json(result)
     } catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
+        return handleDbError(ex, res)
     }
 
 }

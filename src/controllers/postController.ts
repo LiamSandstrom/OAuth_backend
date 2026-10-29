@@ -3,6 +3,7 @@ import { createPost, deletePostById, getAllPostsDb, getPostById, updatePostFromI
 import { CreatePostDto, UpdatePostDto } from "../validation/validateCreatePost.js";
 import { toNum } from "../helpers/toNum.js";
 import { parsePost } from "../helpers/mdToAst.js";
+import { handleDbError } from "../helpers/handleDbError.js";
 
 
 export const getAllPosts = (admin = false) => async (req: Request, res: Response) => {
@@ -70,8 +71,8 @@ export const updatePost = async (req: Request, res: Response) => {
         if (!post) return res.status(404).json({ message: "Post not found" })
         return res.json(post)
     }
-    catch {
-        return res.status(500).json({ message: "Internal server error" })
+    catch (ex) {
+        return handleDbError(ex, res)
     }
 }
 
@@ -84,7 +85,7 @@ export const deletePost = async (req: Request, res: Response) => {
         return res.json({ message: "Deleted Post" })
     }
     catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
+        return handleDbError(ex, res)
     }
 }
 
