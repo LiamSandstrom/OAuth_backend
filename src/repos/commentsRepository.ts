@@ -40,6 +40,16 @@ export const updateCommentFromId = (id: number, data: CreateCommentDto) => {
     })
 }
 
+export const getAllCommentsDb = (id: number | undefined, text: string | undefined) => {
+    return prisma.comment.findMany({
+        where: {
+            id,
+            text: text ? { contains: text, mode: "insensitive" } : undefined
+        },
+        orderBy: { id: "asc" }
+    })
+}
+
 export const getCommentById = (id: number) => {
     return prisma.comment.findUnique({
         where: { id }

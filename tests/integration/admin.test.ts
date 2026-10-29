@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import request from "supertest"
 import { app } from "../../src/app.js"
-import { adminHeader, createPost, createUser, prisma } from "./helpers.js"
+import { adminHeader, createComment, createPost, createUser, prisma } from "./helpers.js"
 
 let author: Awaited<ReturnType<typeof createUser>>
 
@@ -112,5 +112,50 @@ describe("/admin/users", () => {
         const res = await request(app).delete(`/admin/users/${author.id}`).set(adminHeader())
         expect(res.status).toBe(200)
         expect(await prisma.post.count()).toBe(0)
+    })
+})
+
+describe("/admin/comments", () => {
+    it("lists comments on drafts as well as published posts", async () => {
+        await createComment((await createPost(author.id)).id, author.id, "On a published post")
+        await createComment((await createPost(author.id, { published: false })).id, author.id, "On a draft")
+
+        const res = await request(app).get("/admin/comments").set(adminHeader())
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveLength(2)
+    })
+
+    it("filters by text, case-insensitively", async () => {
+        const post = await createPost(author.id)
+        await createComment(post.id, author.id, "Buy cheap SPAM now")
+        await createComment(post.id, author.id, "Lovely post")
+
+        const res = await request(app).get("/admin/comments").query({ text: "spam" }).set(adminHeader())
+        expect(res.body.map((c: { text: string }) => c.text)).toEqual(["Buy cheap SPAM now"])
+    })
+
+    it("filters by id", async () => {
+        const post = await createPost(author.id)
+        await createComment(post.id, author.id)
+        const target = await createComment(post.id, author.id)
+
+        const res = await request(app).get("/admin/comments").query({ id: target.id }).set(adminHeader())
+        expect(res.body).toEqual([expect.objectContaining({ id: target.id })])
+    })
+
+    it("deletes any comment", async () => {
+        const comment = await createComment((await createPost(author.id)).id, author.id)
+        const res = await request(app).delete(`/admin/comments/${comment.id}`).set(adminHeader())
+        expect(res.status).toBe(200)
+        expect(await prisma.comment.count()).toBe(0)
+    })
+
+    it("404s when deleting a missing comment", async () => {
+        const res = await request(app).delete("/admin/comments/9999").set(adminHeader())
+        expect(res.status).toBe(404)
+    })
+
+    it("requires the API key", async () => {
+        expect((await request(app).get("/admin/comments")).status).toBe(401)
     })
 })
