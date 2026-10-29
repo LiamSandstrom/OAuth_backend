@@ -19,6 +19,23 @@ npx prisma generate
 npm run dev
 ```
 
+## Testing
+
+Tests use [Vitest](https://vitest.dev) and [Supertest](https://github.com/ladjs/supertest), split into two projects:
+
+- **Unit** (`tests/unit`): validation schemas, helpers, middleware and the OAuth login/linking logic, with the DB mocked out.
+- **Integration** (`tests/integration`): every route hit over HTTP against a real Postgres, covering auth, ownership checks and error codes.
+
+Integration tests run against a throwaway Postgres on port 5433 configured in `.env.test`, and refuse to run against any database whose name doesn't contain `test`.
+
+```bash
+npm run test:db:up        # start the test database
+npm test                  # run everything
+npm run test:unit         # no database needed
+npm run test:coverage
+npm run test:db:down
+```
+
 ## Routes
 
 ### Posts
