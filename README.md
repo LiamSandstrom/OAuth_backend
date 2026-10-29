@@ -1,6 +1,6 @@
 # OAuth Blog backend API
 
-[![CI](https://github.com/LiamSandstrom/Blog/actions/workflows/ci.yml/badge.svg)](https://github.com/LiamSandstrom/Blog/actions/workflows/ci.yml)
+[![CI](https://github.com/LiamSandstrom/OAuth_backend/actions/workflows/ci.yml/badge.svg)](https://github.com/LiamSandstrom/OAuth_backend/actions/workflows/ci.yml)
 
 A backend for a blog. Users sign in with Google or GitHub, write posts in Markdown and easily post and manage the blog from the CLI.
 Primarily written to learn OAuth & make a CLI friendly Blog :)
