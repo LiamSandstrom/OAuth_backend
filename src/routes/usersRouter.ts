@@ -5,13 +5,14 @@ import { validate } from "../middleware/validate.js";
 import { UpdateUserSchema } from "../validation/validateUser.js";
 import { isSelf } from "../middleware/isSelf.js";
 import { requireRole } from "../middleware/requireRole.js";
+import { validateId } from "../middleware/validateId.js";
 
 export const usersRouter = Router()
 
 usersRouter.get("/", VerifyToken, requireRole("AUTHOR"), getAllUsers)
 usersRouter.get("/protected", VerifyToken, getUserData)
 
-usersRouter.get("/:id", VerifyToken, requireRole("AUTHOR"), getUser)
+usersRouter.get("/:id", VerifyToken, requireRole("AUTHOR"), validateId(), getUser)
 
 usersRouter.patch("/:id", VerifyToken, isSelf, validate(UpdateUserSchema), updateUser)
 usersRouter.delete("/:id", VerifyToken, isSelf, deleteUser)
