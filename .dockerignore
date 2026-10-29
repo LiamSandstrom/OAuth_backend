@@ -3,3 +3,7 @@ dist
 .env
 .git
 blogapi
+coverage
+tests
+cmd
+.env.test
