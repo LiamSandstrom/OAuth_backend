@@ -10,19 +10,19 @@ const JwtPayloadSchema = z.object({
 
 export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.jwt_token
-    if (!token) return res.status(401).json({ authenticated: false })
+    if (!token) return res.status(401).json({ message: "Unauthorized" })
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!)
 
         const result = JwtPayloadSchema.safeParse(decoded)
-        if (!result.success) return res.status(401).json({ authenticated: false })
+        if (!result.success) return res.status(401).json({ message: "Unauthorized" })
 
         req.user = result.data
         next();
     }
     catch {
-        return res.status(401).json({ authenticated: false, error: "invalid token" })
+        return res.status(401).json({ message: "Invalid token" })
     }
 }
 

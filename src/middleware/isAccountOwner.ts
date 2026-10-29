@@ -8,12 +8,8 @@ export const isAccountOwnerOrAuthor = async (req: Request, res: Response, next: 
 
     if (req.user!.role === Role.AUTHOR) return next();
 
-    try {
-        const found = await getAccountByIdAndUserId(accountId, userId)
-        if (!found) return res.status(403).json({ message: "Forbidden" })
+    const found = await getAccountByIdAndUserId(accountId, userId)
+    if (!found) return res.status(403).json({ message: "Forbidden" })
 
-        next()
-    } catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
-    }
+    next()
 }

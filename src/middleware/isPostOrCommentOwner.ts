@@ -8,17 +8,13 @@ export const isPostOrCommentOwner = async (req: Request, res: Response, next: Ne
     const postId = Number(req.params.id)
     const commentId = Number(req.params.commentId)
 
-    try {
-        const post = await getPostById(postId)
-        if (!post) return res.status(404).json({ message: "Not Found" })
+    const post = await getPostById(postId)
+    if (!post) return res.status(404).json({ message: "Not found" })
 
-        const comment = await getCommentById(commentId)
-        if (!comment || comment.postId !== postId) return res.status(404).json({ message: "Not Found" })
+    const comment = await getCommentById(commentId)
+    if (!comment || comment.postId !== postId) return res.status(404).json({ message: "Not found" })
 
-        if (post.userId !== userId && comment.userId !== userId) return res.status(403).json({ message: "Forbidden" })
+    if (post.userId !== userId && comment.userId !== userId) return res.status(403).json({ message: "Forbidden" })
 
-        next()
-    } catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
-    }
+    next()
 }

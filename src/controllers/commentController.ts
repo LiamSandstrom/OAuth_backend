@@ -1,34 +1,22 @@
 import { Request, Response } from "express";
 import { createComment, deleteComment, getAllCommentsOnPostDb, getCommentOnPostById, updateCommentFromId } from "../repos/commentsRepository.js";
-import { handleDbError } from "../helpers/handleDbError.js";
 import { CommentUncheckedCreateInput } from "../generated/prisma/models.js";
 import { CreateCommentDto } from "../validation/validateComment.js";
 
 export const getAllCommentsOnPost = async (req: Request, res: Response) => {
     const postId = Number(req.params.id)
-    try {
-        const result = await getAllCommentsOnPostDb(postId)
-        if (!result) return res.status(404).json({ message: "Not found" })
-        return res.json(result)
-    } catch (ex) {
-        console.log(ex)
-        return res.status(500).json({ message: "Internal server error" })
-    }
 
+    const result = await getAllCommentsOnPostDb(postId)
+    return res.json(result)
 }
 
 export const getCommentOnPost = async (req: Request, res: Response) => {
     const postId = Number(req.params.id)
     const commentId = Number(req.params.commentId)
 
-    try {
-        const result = await getCommentOnPostById(postId, commentId)
-        if (!result) return res.status(404).json({ message: "Not found" })
-        return res.json(result)
-    } catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
-    }
-
+    const result = await getCommentOnPostById(postId, commentId)
+    if (!result) return res.status(404).json({ message: "Not found" })
+    return res.json(result)
 }
 
 export const createCommentOnPost = async (req: Request, res: Response) => {
@@ -36,46 +24,27 @@ export const createCommentOnPost = async (req: Request, res: Response) => {
     const user = req.user!
     const body = req.body as CreateCommentDto
 
-    try {
-        const comment: CommentUncheckedCreateInput = {
-            text: body.text,
-            postId,
-            userId: user.id
-        }
-
-        const result = await createComment(comment)
-        if (!result) return res.status(404).json({ message: "Not found" })
-        return res.json(result)
-    } catch (ex) {
-        return handleDbError(ex, res)
+    const comment: CommentUncheckedCreateInput = {
+        text: body.text,
+        postId,
+        userId: user.id
     }
 
+    const result = await createComment(comment)
+    return res.json(result)
 }
 
 export const deleteCommentOnPost = async (req: Request, res: Response) => {
     const commentId = Number(req.params.commentId)
 
-    try {
-        const result = await deleteComment(commentId)
-        if (!result) return res.status(404).json({ message: "Not found" })
-        return res.json({ message: "Deleted Comment" })
-    } catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
-    }
-
+    await deleteComment(commentId)
+    return res.json({ message: "Deleted Comment" })
 }
-
 
 export const editCommentOnPost = async (req: Request, res: Response) => {
     const commentId = Number(req.params.commentId)
     const comment = req.body as CreateCommentDto
 
-    try {
-        const result = await updateCommentFromId(commentId, comment)
-        if (!result) return res.status(404).json({ message: "Not found" })
-        return res.json(result)
-    } catch (ex) {
-        return res.status(500).json({ message: "Internal server error" })
-    }
-
+    const result = await updateCommentFromId(commentId, comment)
+    return res.json(result)
 }
