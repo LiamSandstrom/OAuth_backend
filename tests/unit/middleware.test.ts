@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import type { Request, Response } from "express"
+import type { NextFunction, Request, Response } from "express"
 import jwt from "jsonwebtoken"
 import { requireRole } from "../../src/middleware/requireRole.js"
 import { isSelf } from "../../src/middleware/isSelf.js"
@@ -20,7 +20,7 @@ const mockRes = () => {
     return res
 }
 
-let next: ReturnType<typeof vi.fn>
+let next: NextFunction
 beforeEach(() => {
     next = vi.fn()
     vi.spyOn(console, "log").mockImplementation(() => {})

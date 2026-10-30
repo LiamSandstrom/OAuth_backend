@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import type { Request } from "express"
+import type { VerifyCallback } from "passport-oauth2"
 import { oauthVerify } from "../../src/auth/oauthVerify.js"
 import * as repo from "../../src/repos/userRepository.js"
 
@@ -17,7 +18,7 @@ const otherUser = { id: 2, role: "USER" as const }
 const loggedIn = { user } as Request
 const anonymous = {} as Request
 
-let done: ReturnType<typeof vi.fn>
+let done: VerifyCallback
 beforeEach(() => {
     vi.resetAllMocks()
     done = vi.fn()

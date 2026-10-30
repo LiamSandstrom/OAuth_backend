@@ -17,7 +17,7 @@
         "start": "node dist/server.js",
         "dev": "npm run generate && tsx watch src/server.ts",
         "lint": "eslint .",
-        "typecheck": "tsc --noEmit",
+        "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
         "format": "prettier --write .",
         "format:check": "prettier --check ."
     },
