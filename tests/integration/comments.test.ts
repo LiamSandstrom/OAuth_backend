@@ -139,6 +139,17 @@ describe("PATCH /posts/:id/comments/:commentId", () => {
         expect(res.status).toBe(404)
     })
 
+    it("404s when editing through another post's url", async () => {
+        const c = await createComment(post.id, commenter.id)
+        const otherPost = await createPost(author.id)
+        const res = await request(app)
+            .patch(`/posts/${otherPost.id}/comments/${c.id}`)
+            .set("Cookie", authCookie(commenter))
+            .send({ text: "Edited" })
+        expect(res.status).toBe(404)
+        expect((await prisma.comment.findUnique({ where: { id: c.id } }))?.text).toBe(c.text)
+    })
+
     it("rejects profanity in edits", async () => {
         const c = await createComment(post.id, commenter.id)
         const res = await request(app)
