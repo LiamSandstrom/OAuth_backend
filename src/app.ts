@@ -11,7 +11,9 @@ import { errorHandler, notFound } from "./middleware/errorHandler.js"
 
 export const app = express()
 
+// adds security headers to every response
 app.use(helmet())
+// lets the frontend in CORS_ORIGIN call the api from the browser and send the login cookie
 app.use(cors({ origin: process.env.CORS_ORIGIN?.split(",") ?? false, credentials: true }))
 app.use(express.json())
 app.use(cookieParser())
