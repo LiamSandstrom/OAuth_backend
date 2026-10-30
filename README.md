@@ -111,7 +111,7 @@ npm run typecheck
 | `POST` | `/posts/:id/likes` | Logged in |
 | `DELETE` | `/posts/:id/likes` | Logged in |
 
-`GET /posts` takes `?title=`, `?page=`, `?limit=` and `?withComments=true`. `GET /posts/:id` returns the parsed post, add `?format=raw` for the Markdown.
+`GET /posts` takes `?title=`, `?page=`, `?limit=` (default 20, max 100) and `?withComments=true`. `GET /posts/:id` returns the parsed post, add `?format=raw` for the Markdown.
 
 ### Users
 | Method | Path | Access |

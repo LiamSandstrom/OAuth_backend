@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import request from "supertest"
 import { app } from "../../src/app.js"
-import { authCookie, createComment, createPost, createUser } from "./helpers.js"
+import { authCookie, createComment, createPost, createUser, prisma } from "./helpers.js"
 
 let author: Awaited<ReturnType<typeof createUser>>
 
@@ -33,6 +33,28 @@ describe("GET /posts", () => {
 
         const res = await request(app).get("/posts").query({ page: 2, limit: 2 })
         expect(res.body.map((p: { title: string }) => p.title)).toEqual(["Post 3", "Post 4"])
+    })
+
+    it("returns 20 posts by default and at most 100", async () => {
+        await prisma.post.createMany({
+            data: Array.from({ length: 105 }, (_, i) => ({
+                title: `Post ${i}`,
+                content: "Some content",
+                userId: author.id,
+                published: true
+            }))
+        })
+
+        expect((await request(app).get("/posts")).body).toHaveLength(20)
+        expect((await request(app).get("/posts").query({ limit: 1000 })).body).toHaveLength(100)
+    })
+
+    it("treats invalid page and limit as the nearest valid value", async () => {
+        await createPost(author.id)
+
+        const res = await request(app).get("/posts").query({ page: -1, limit: 0 })
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveLength(1)
     })
 
     it("ignores empty query params", async () => {

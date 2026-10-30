@@ -5,13 +5,16 @@ import { toNum } from "../helpers/toNum.js"
 import { parsePost } from "../helpers/mdToAst.js"
 import { getFirstAuthor } from "../repos/userRepository.js"
 
+const DEFAULT_LIMIT = 20
+const MAX_LIMIT = 100
+
 export const getAllPosts =
     (admin = false) =>
     async (req: Request, res: Response) => {
         const id = toNum(req.query.id)
         const title = typeof req.query.title === "string" ? req.query.title : undefined
-        const limit = toNum(req.query.limit)
-        const page = toNum(req.query.page)
+        const limit = Math.min(Math.max(Math.floor(toNum(req.query.limit) ?? DEFAULT_LIMIT), 1), MAX_LIMIT)
+        const page = Math.max(Math.floor(toNum(req.query.page) ?? 1), 1)
         const withComments = req.query.withComments === "true"
 
         const posts = await getAllPostsDb(id, title, page, limit, withComments, admin)
