@@ -178,7 +178,7 @@ title: My Post
 Regular content.
 ```
 
-The server parses each post into a static AST. The frontend can update or create new components freely without touching the backend.
+Posts are stored as Markdown and parsed into an AST when requested. The frontend can update or create new components freely without touching the backend.
 
 ## Admin CLI
 
