@@ -8,7 +8,8 @@ vi.mock("../../src/repos/userRepository.js", () => ({
     getAccountWithUser: vi.fn(),
     getUserWithEmail: vi.fn(),
     linkAccountToUser: vi.fn(),
-    createUserWithAccount: vi.fn()
+    createUserWithAccount: vi.fn(),
+    updateUserRole: vi.fn()
 }))
 
 const profile = { id: "gh-123", provider: "github", emails: [{ value: "me@example.com" }] }
@@ -55,6 +56,25 @@ describe("oauthVerify when anonymous (login / sign up)", () => {
         await oauthVerify(anonymous, profile, done)
         expect(done).toHaveBeenCalledWith(null, user)
         expect(repo.createUserWithAccount).not.toHaveBeenCalled()
+        expect(repo.updateUserRole).not.toHaveBeenCalled()
+    })
+
+    it("makes the ADMIN_EMAIL user the author when they log in", async () => {
+        const admin = { id: 3, role: "USER", email: process.env.ADMIN_EMAIL }
+        const promoted = { ...admin, role: "AUTHOR" }
+        vi.mocked(repo.getAccountWithUser).mockResolvedValue({ user: admin } as never)
+        vi.mocked(repo.updateUserRole).mockResolvedValue(promoted as never)
+        await oauthVerify(anonymous, profile, done)
+        expect(repo.updateUserRole).toHaveBeenCalledWith(3, "AUTHOR")
+        expect(done).toHaveBeenCalledWith(null, promoted)
+    })
+
+    it("demotes an author whose email is no longer ADMIN_EMAIL", async () => {
+        const oldAuthor = { id: 4, role: "AUTHOR", email: "old@test.local" }
+        vi.mocked(repo.getAccountWithUser).mockResolvedValue({ user: oldAuthor } as never)
+        vi.mocked(repo.updateUserRole).mockResolvedValue({ ...oldAuthor, role: "USER" } as never)
+        await oauthVerify(anonymous, profile, done)
+        expect(repo.updateUserRole).toHaveBeenCalledWith(4, "USER")
     })
 
     it("refuses when the provider has no public email", async () => {
@@ -80,9 +100,17 @@ describe("oauthVerify when anonymous (login / sign up)", () => {
         await oauthVerify(anonymous, profile, done)
         expect(repo.createUserWithAccount).toHaveBeenCalledWith(
             { provider: "github", providerId: "gh-123" },
-            "me@example.com"
+            "me@example.com",
+            "USER"
         )
         expect(done).toHaveBeenCalledWith(null, created)
+    })
+
+    it("creates the ADMIN_EMAIL user as the author", async () => {
+        vi.mocked(repo.getAccountWithUser).mockResolvedValue(null)
+        vi.mocked(repo.getUserWithEmail).mockResolvedValue(null)
+        await oauthVerify(anonymous, { ...profile, emails: [{ value: process.env.ADMIN_EMAIL! }] }, done)
+        expect(repo.createUserWithAccount).toHaveBeenCalledWith(expect.anything(), process.env.ADMIN_EMAIL, "AUTHOR")
     })
 })
 

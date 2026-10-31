@@ -122,11 +122,17 @@ describe("/admin/posts", () => {
 })
 
 describe("/admin/users", () => {
-    it("can promote a user to author", async () => {
+    it("updates a user but ignores role changes", async () => {
         const user = await createUser()
-        const res = await request(app).patch(`/admin/users/${user.id}`).set(adminHeader()).send({ role: "AUTHOR" })
+        const res = await request(app)
+            .patch(`/admin/users/${user.id}`)
+            .set(adminHeader())
+            .send({ username: "renamed", role: "AUTHOR" })
         expect(res.status).toBe(200)
-        expect((await prisma.user.findUnique({ where: { id: user.id } }))?.role).toBe("AUTHOR")
+        expect(await prisma.user.findUnique({ where: { id: user.id } })).toMatchObject({
+            username: "renamed",
+            role: "USER"
+        })
     })
 
     it("deletes a user and cascades to their posts", async () => {

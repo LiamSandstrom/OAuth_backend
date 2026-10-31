@@ -25,13 +25,15 @@ Signing in with Google or GitHub gives you a JWT in an httpOnly cookie. One user
 - If a new login has the same email as an existing user, it's refused instead of silently merged. Otherwise anyone controlling that email on another provider could take over the account. Log in first, then link.
 - You can't unlink your last provider.
 
+There is one author: the user whose email is `ADMIN_EMAIL`. The role is set when that user logs in, so changing `ADMIN_EMAIL` and logging in again moves it. Nobody can change their email to `ADMIN_EMAIL` or set roles through the API.
+
 ### Roles
 
 | Who | How | Can |
 |---|---|---|
 | Visitor | No cookie | Read published posts, comments and likes |
 | `USER` | OAuth cookie | Comment, like, manage own account |
-| `AUTHOR` | OAuth cookie | All of the above + see drafts, users and accounts |
+| `AUTHOR` | Logged in as `ADMIN_EMAIL` | All of the above + see drafts, users and accounts |
 | Admin | `Authorization: Bearer $ADMIN_API_KEY` | Create, edit and publish posts, moderate comments and users. Used by the CLI |
 
 ### Errors
@@ -63,7 +65,7 @@ Starts Postgres, runs the migrations and serves the API on `http://localhost:300
 | `DATABASE_URL` | Postgres connection string |
 | `JWT_SECRET` | Signs the login cookie |
 | `ADMIN_API_KEY` | Key for `/admin` and the CLI |
-| `ADMIN_EMAIL` | Email of the `AUTHOR` that owns posts created with the CLI. Log in with OAuth once to create the user |
+| `ADMIN_EMAIL` | The blog owner. Logging in with this email gives the `AUTHOR` role, and posts created with the CLI belong to this user. Log in with OAuth once to create the user |
 | `NODE_ENV` | `development` / `production` |
 | `GOOGLE_*`, `GITHUB_*` | OAuth client id, secret and callback url |
 | `CORS_ORIGIN` | Optional. Comma separated frontend origins allowed to use the cookie |

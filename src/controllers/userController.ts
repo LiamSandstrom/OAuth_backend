@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { deleteUserFromId, getAllUsersDb, getUserFromId, updateUserFromId } from "../repos/userRepository.js"
-import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js"
+import { UpdateUserDto } from "../validation/validateUser.js"
+import { isAdminEmail } from "../helpers/roleForEmail.js"
 
 export const getUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
@@ -36,7 +37,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
-    const body = req.body as UpdateUserDto | AdminUpdateUserDto
+    const body = req.body as UpdateUserDto
+    if (body.email && isAdminEmail(body.email)) return res.status(409).json({ message: "Email is reserved" })
 
     await updateUserFromId(id, body)
     return res.json({ message: "Updated User" })

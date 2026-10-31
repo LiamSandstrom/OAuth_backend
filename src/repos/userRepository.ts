@@ -1,11 +1,13 @@
 import { AccountProviderInput } from "../types/index.js"
-import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js"
+import { UpdateUserDto } from "../validation/validateUser.js"
+import { Role } from "../generated/prisma/enums.js"
 import { prisma } from "./client.js"
 
-export const createUserWithAccount = (account: AccountProviderInput, email: string) => {
+export const createUserWithAccount = (account: AccountProviderInput, email: string, role: Role) => {
     return prisma.user.create({
         data: {
             email,
+            role,
             accounts: {
                 create: account
             }
@@ -89,9 +91,16 @@ export const getAccountById = (id: number) => {
     })
 }
 
-export const updateUserFromId = (id: number, data: UpdateUserDto | AdminUpdateUserDto) => {
+export const updateUserFromId = (id: number, data: UpdateUserDto) => {
     return prisma.user.update({
         where: { id },
         data
+    })
+}
+
+export const updateUserRole = (id: number, role: Role) => {
+    return prisma.user.update({
+        where: { id },
+        data: { role }
     })
 }

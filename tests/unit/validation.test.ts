@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { CreateCommentSchema } from "../../src/validation/validateComment.js"
 import { CreatePostSchema, UpdatePostSchema } from "../../src/validation/validateCreatePost.js"
-import { AdminUpdateUserSchema, UpdateUserSchema } from "../../src/validation/validateUser.js"
+import { UpdateUserSchema } from "../../src/validation/validateUser.js"
 
 describe("CreateCommentSchema", () => {
     it("accepts text between 1 and 255 chars", () => {
@@ -66,15 +66,5 @@ describe("UpdateUserSchema", () => {
 
     it("rejects a body that only contains role", () => {
         expect(UpdateUserSchema.safeParse({ role: "AUTHOR" }).success).toBe(false)
-    })
-})
-
-describe("AdminUpdateUserSchema", () => {
-    it("allows changing role", () => {
-        expect(AdminUpdateUserSchema.safeParse({ role: "AUTHOR" }).data).toEqual({ role: "AUTHOR" })
-    })
-
-    it("rejects an unknown role", () => {
-        expect(AdminUpdateUserSchema.safeParse({ role: "SUPERADMIN" }).success).toBe(false)
     })
 })

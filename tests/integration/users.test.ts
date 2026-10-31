@@ -79,6 +79,12 @@ describe("PATCH /users/:id", () => {
         expect((await prisma.user.findUnique({ where: { id: user.id } }))?.role).toBe("USER")
     })
 
+    it("409s when changing your email to ADMIN_EMAIL", async () => {
+        const res = await patch(user, user.id, { email: process.env.ADMIN_EMAIL })
+        expect(res.status).toBe(409)
+        expect((await prisma.user.findUnique({ where: { id: user.id } }))?.email).toBe(user.email)
+    })
+
     it("400s on an invalid email", async () => {
         const res = await patch(user, user.id, { email: "nope" })
         expect(res.status).toBe(400)

@@ -5,9 +5,11 @@ import {
     createUserWithAccount,
     getAccountWithUser,
     getUserWithEmail,
-    linkAccountToUser
+    linkAccountToUser,
+    updateUserRole
 } from "../repos/userRepository.js"
 import { Provider } from "../generated/prisma/enums.js"
+import { roleForEmail } from "../helpers/roleForEmail.js"
 
 export const oauthVerify = async (
     req: Request,
@@ -34,7 +36,11 @@ export const oauthVerify = async (
 
         // account exists? login
         const account = await getAccountWithUser(accountInput)
-        if (account) return done(null, account.user)
+        if (account) {
+            const role = roleForEmail(account.user.email)
+            if (account.user.role !== role) return done(null, await updateUserRole(account.user.id, role))
+            return done(null, account.user)
+        }
 
         //oauth email found?
         const userEmail = profile.emails?.[0]?.value
@@ -48,7 +54,7 @@ export const oauthVerify = async (
         if (existingUser)
             return done(null, false, { message: "Email already linked to an account. Log in first to link." })
 
-        const user = await createUserWithAccount(accountInput, userEmail)
+        const user = await createUserWithAccount(accountInput, userEmail, roleForEmail(userEmail))
         return done(null, user)
     } catch (err) {
         return done(err)

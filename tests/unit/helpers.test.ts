@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { toNum } from "../../src/helpers/toNum.js"
 import { parsePost } from "../../src/helpers/mdToAst.js"
+import { isAdminEmail, roleForEmail } from "../../src/helpers/roleForEmail.js"
 
 describe("toNum", () => {
     it("converts numeric strings", () => {
@@ -36,5 +37,17 @@ describe("parsePost", () => {
 
     it("handles content without frontmatter", () => {
         expect(parsePost("Just text").meta).toEqual({})
+    })
+})
+
+describe("roleForEmail", () => {
+    it("makes the ADMIN_EMAIL user the author, ignoring case", () => {
+        expect(roleForEmail(process.env.ADMIN_EMAIL!)).toBe("AUTHOR")
+        expect(roleForEmail(process.env.ADMIN_EMAIL!.toUpperCase())).toBe("AUTHOR")
+    })
+
+    it.each(["someone@test.local", null])("makes %j a user", email => {
+        expect(roleForEmail(email)).toBe("USER")
+        expect(isAdminEmail(email)).toBe(false)
     })
 })
