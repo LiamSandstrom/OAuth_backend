@@ -24,3 +24,10 @@ type Comment struct {
 type publishPostPayload struct {
 	Published bool `json:"published"`
 }
+
+type FeedbackResponse struct {
+	Type        string    `json:"type"`
+	Feedback    string    `json:"feedback"`
+	Cached      bool      `json:"cached"`
+	GeneratedAt time.Time `json:"generatedAt"`
+}

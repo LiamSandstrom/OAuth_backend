@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
-	"fmt"
 	"net/url"
 )
 
@@ -21,10 +19,22 @@ var handlers = map[string]func(url.Values, *flag.Flag){
 }
 
 func getPosts(args []string, client *Client) {
-	fs := flag.NewFlagSet("posts", flag.ExitOnError)
+	render(fetchPosts(client, "/posts", parsePostFlags("posts", args, true)), formatPosts("No published posts found"))
+}
+
+func getDrafts(args []string, client *Client) {
+	q := parsePostFlags("drafts", args, false)
+	q.Set("published", "false")
+	render(fetchPosts(client, "/admin/posts", q), formatPosts("No drafts found"))
+}
+
+func parsePostFlags(name string, args []string, comments bool) url.Values {
+	fs := flag.NewFlagSet(name, flag.ExitOnError)
 	fs.String("id", "", "")
 	fs.String("title", "", "")
-	fs.Bool("include-comments", false, "")
+	if comments {
+		fs.Bool("include-comments", false, "")
+	}
 	fs.String("page", "", "")
 	fs.String("limit", "", "")
 	fs.Parse(args)
@@ -35,12 +45,9 @@ func getPosts(args []string, client *Client) {
 			h(q, f)
 		}
 	})
+	return q
+}
 
-	body := getJSON(client, "/posts?"+q.Encode())
-	var result []Post
-	must(json.Unmarshal(body, &result))
-
-	out, err := json.MarshalIndent(result, "", "  ")
-	must(err)
-	fmt.Println(string(out))
+func fetchPosts(client *Client, path string, q url.Values) []byte {
+	return getJSON(client, path+"?"+q.Encode())
 }

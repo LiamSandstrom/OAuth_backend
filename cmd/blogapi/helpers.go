@@ -25,7 +25,11 @@ func must(err error) {
 
 func checkStatus(resp *http.Response, body []byte) {
 	if resp.StatusCode > 399 {
-		fmt.Fprintln(os.Stderr, string(body))
+		if jsonOutput {
+			fmt.Fprintln(os.Stderr, string(body))
+		} else {
+			fmt.Fprintln(os.Stderr, errorMessage(resp.StatusCode, body))
+		}
 		os.Exit(1)
 	}
 }

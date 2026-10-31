@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -47,7 +46,5 @@ func editPost(args []string, client *Client) {
 	})
 
 	body := patchJSON(client, "/admin/posts/"+args[0], payload)
-
-	fmt.Println("Successfully edited post!")
-	fmt.Println(string(body))
+	render(body, formatPostAction("Edited"))
 }

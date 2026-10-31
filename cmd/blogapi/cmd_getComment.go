@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
-	"fmt"
 	"net/url"
 	"os"
 )
@@ -27,11 +25,5 @@ func getComment(args []string, client *Client) {
 		q.Set("text", *text)
 	}
 
-	body := getJSON(client, "/admin/comments?"+q.Encode())
-	var result []Comment
-	must(json.Unmarshal(body, &result))
-
-	out, err := json.MarshalIndent(result, "", "  ")
-	must(err)
-	fmt.Println(string(out))
+	render(getJSON(client, "/admin/comments?"+q.Encode()), formatComments)
 }

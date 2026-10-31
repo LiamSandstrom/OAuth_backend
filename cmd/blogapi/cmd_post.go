@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"os"
-)
+import "os"
 
 type PostPayload struct {
 	Title   string `json:"title"`
@@ -20,7 +17,5 @@ func post(args []string, client *Client) {
 	must(err)
 
 	body := postJSON(client, "/admin/posts", PostPayload{Title: title, Content: string(content)})
-
-	fmt.Println("Successfully made post!")
-	fmt.Println(string(body))
+	render(body, formatPostAction("Created"))
 }

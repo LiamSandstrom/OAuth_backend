@@ -38,5 +38,7 @@ func main() {
 
 	client := newClient(token, baseURL)
 
-	cmd.Run(os.Args[2:], client)
+	args, asJSON := extractJSONFlag(os.Args[2:])
+	jsonOutput = asJSON
+	cmd.Run(args, client)
 }

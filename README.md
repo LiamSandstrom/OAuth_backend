@@ -210,9 +210,13 @@ blogapi edit-post $id < --title | --filepath >
 blogapi publish $id
 blogapi unpublish $id
 blogapi posts [--id] [--title] [--include-comments] [--page] [--limit]
+blogapi drafts [--id] [--title] [--page] [--limit]
 blogapi delete-user $id
 blogapi get-comment < --id | --text >
 blogapi delete-comment $id
+blogapi feedback $id
 ```
+
+Output is made for people: lists are tables, actions print one line and feedback is Markdown. Add `--json` to any command for the raw API response, e.g. `blogapi posts --json | jq -r '.[0].content'`.
 
 Reads `BASE_URL` and `ADMIN_API_KEY` from env or a `.env` file. New posts belong to the `ADMIN_EMAIL` user and are drafts until you `publish` them.

@@ -16,9 +16,11 @@ const (
 	HelpPublish       = "blogapi publish $id"
 	HelpUnpublish     = "blogapi unpublish $id"
 	HelpPosts         = "blogapi posts [--id] [--title] [--include-comments] [--page] [--limit]"
+	HelpDrafts        = "blogapi drafts [--id] [--title] [--page] [--limit]"
 	HelpDeleteUser    = "blogapi delete-user $id"
 	HelpGetComment    = "blogapi get-comment < --id | --text >"
 	HelpDeleteComment = "blogapi delete-comment $id"
+	HelpFeedback      = "blogapi feedback $id"
 )
 
 var commands = map[string]Command{
@@ -46,6 +48,10 @@ var commands = map[string]Command{
 		Help: HelpPosts,
 		Run:  getPosts,
 	},
+	"drafts": {
+		Help: HelpDrafts,
+		Run:  getDrafts,
+	},
 	"delete-user": {
 		Help: HelpDeleteUser,
 		Run:  deleteUser,
@@ -57,6 +63,10 @@ var commands = map[string]Command{
 	"delete-comment": {
 		Help: HelpDeleteComment,
 		Run:  deleteComment,
+	},
+	"feedback": {
+		Help: HelpFeedback,
+		Run:  feedback,
 	},
 }
 
@@ -71,6 +81,7 @@ func printHelp() {
 	for _, name := range names {
 		fmt.Println(" ", commands[name].Help)
 	}
+	fmt.Println("\nAdd --json to any command to print the raw API response.")
 }
 
 func printHelpCommand(help string) {
