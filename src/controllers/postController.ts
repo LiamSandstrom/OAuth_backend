@@ -18,8 +18,9 @@ export const getAllPosts =
         const limit = Math.min(Math.max(Math.floor(toNum(req.query.limit) ?? DEFAULT_LIMIT), 1), MAX_LIMIT)
         const page = Math.max(Math.floor(toNum(req.query.page) ?? 1), 1)
         const withComments = req.query.withComments === "true"
+        const published = req.query.published === "true" ? true : req.query.published === "false" ? false : undefined
 
-        const posts = await getAllPostsDb(id, title, page, limit, withComments, admin)
+        const posts = await getAllPostsDb(id, title, page, limit, withComments, admin, published)
         return res.json(posts)
     }
 

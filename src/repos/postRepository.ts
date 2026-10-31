@@ -18,12 +18,13 @@ export const getAllPostsDb = (
     page: number | undefined,
     limit: number | undefined,
     comments: boolean | undefined,
-    admin = false
+    admin = false,
+    published?: boolean
 ) => {
     return prisma.post.findMany({
         where: {
             id,
-            ...(!admin && { published: true }),
+            published: admin ? published : true,
             title: title ? { contains: title, mode: "insensitive" } : undefined
         },
         skip: page && limit ? (page - 1) * limit : undefined,

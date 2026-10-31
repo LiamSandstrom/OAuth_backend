@@ -30,6 +30,18 @@ describe("/admin/posts", () => {
         expect(res.body).toHaveLength(2)
     })
 
+    it.each([
+        ["false", false],
+        ["true", true]
+    ])("filters on ?published=%s", async (query, published) => {
+        await createPost(author.id)
+        await createPost(author.id, { published: false })
+
+        const res = await request(app).get(`/admin/posts?published=${query}`).set(adminHeader())
+        expect(res.status).toBe(200)
+        expect(res.body.map((p: { published: boolean }) => p.published)).toEqual([published])
+    })
+
     it("creates a draft by default", async () => {
         const res = await request(app)
             .post("/admin/posts")

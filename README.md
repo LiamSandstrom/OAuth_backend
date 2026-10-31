@@ -126,7 +126,7 @@ npm run typecheck
 | `POST` | `/posts/:id/likes` | Logged in |
 | `DELETE` | `/posts/:id/likes` | Logged in |
 
-`GET /posts` takes `?title=`, `?page=`, `?limit=` (default 20, max 100) and `?withComments=true`. `GET /posts/:id` returns the parsed post, add `?format=raw` for the Markdown.
+`GET /posts` takes `?title=`, `?page=`, `?limit=` (default 20, max 100) and `?withComments=true`. `GET /posts/:id` returns the parsed post, add `?format=raw` for the Markdown. `GET /posts/admin` and `GET /admin/posts` take the same query and also `?published=true|false`, the public listing always returns only published posts.
 
 `POST /posts/:id/feedback` asks Claude for feedback on one of your posts. Drafts get feedback on the writing itself; published posts also send the like count and up to 50 comments (text only, no usernames) so the feedback covers how readers responded. Answers are cached in the database: a draft is only sent again when its title, content or the prompt changes, and a published post when that changes or it has 3 new comments since the last answer. The response says whether it was `cached`. The CLI uses `POST /admin/posts/:id/feedback`, which shares the same cache. Limited to 10 requests per hour per user, and returns 503 if the AI service is unavailable.
 

@@ -19,6 +19,14 @@ describe("GET /posts", () => {
         expect(res.body.map((p: { title: string }) => p.title)).toEqual(["Public"])
     })
 
+    it("ignores ?published=false", async () => {
+        await createPost(author.id, { title: "Public" })
+        await createPost(author.id, { title: "Draft", published: false })
+
+        const res = await request(app).get("/posts?published=false")
+        expect(res.body.map((p: { title: string }) => p.title)).toEqual(["Public"])
+    })
+
     it("filters by title, case-insensitively", async () => {
         await createPost(author.id, { title: "Learning Docker" })
         await createPost(author.id, { title: "Testing Express" })
