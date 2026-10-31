@@ -3,9 +3,10 @@ import { validateId } from "../middleware/validateId.js"
 import { validate } from "../middleware/validate.js"
 import { CreatePostSchema, UpdatePostSchema } from "../validation/validateCreatePost.js"
 import { UpdateUserSchema } from "../validation/validateUser.js"
-import { deletePost, getAllPosts, getPost, updatePost, uploadPost } from "../controllers/postController.js"
+import { deletePost, getAllPosts, getFeedback, getPost, updatePost, uploadPost } from "../controllers/postController.js"
 import { deleteUser, updateUser } from "../controllers/userController.js"
 import { deleteCommentOnPost, getAllComments } from "../controllers/commentController.js"
+import { feedbackLimiter } from "../middleware/rateLimit.js"
 
 export const adminRouter = Router()
 
@@ -15,6 +16,7 @@ adminRouter.use("/posts/:id", validateId())
 adminRouter.get("/posts/:id", getPost(true))
 adminRouter.patch("/posts/:id", validate(UpdatePostSchema), updatePost)
 adminRouter.delete("/posts/:id", deletePost)
+adminRouter.post("/posts/:id/feedback", feedbackLimiter, getFeedback(true))
 
 adminRouter.use("/users/:id", validateId())
 adminRouter.patch("/users/:id", validate(UpdateUserSchema), updateUser)

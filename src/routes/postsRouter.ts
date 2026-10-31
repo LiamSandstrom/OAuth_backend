@@ -16,6 +16,6 @@ postsRouter.get("/admin/:id", verifyToken, requireRole("AUTHOR"), getPost(true))
 
 postsRouter.use("/:id", validateId())
 postsRouter.get("/:id", getPost())
-postsRouter.post("/:id/feedback", verifyToken, requireRole("AUTHOR"), feedbackLimiter, getFeedback)
+postsRouter.post("/:id/feedback", verifyToken, requireRole("AUTHOR"), feedbackLimiter, getFeedback())
 postsRouter.use("/:id/comments", commentsRouter)
 postsRouter.use("/:id/likes", likesRouter)

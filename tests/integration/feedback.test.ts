@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import request from "supertest"
 import { app } from "../../src/app.js"
-import { authCookie, createComment, createPost, createUser, prisma } from "./helpers.js"
+import { adminHeader, authCookie, createComment, createPost, createUser, prisma } from "./helpers.js"
 import { feedbackLimiter } from "../../src/middleware/rateLimit.js"
 import { FeedbackUnavailableError, getDraftFeedback, getPublishedFeedback } from "../../src/services/aiFeedback.js"
 
@@ -19,6 +19,7 @@ beforeEach(async () => {
     author = await createUser("AUTHOR")
     reader = await createUser()
     await feedbackLimiter.resetKey(String(author.id))
+    await feedbackLimiter.resetKey("admin")
 })
 
 const feedback = (id: number, as?: User) => {
@@ -178,6 +179,38 @@ describe("feedback cache", () => {
         await feedback(post.id, author)
         await prisma.post.delete({ where: { id: post.id } })
         expect(await prisma.postFeedback.count()).toBe(0)
+    })
+})
+
+describe("POST /admin/posts/:id/feedback", () => {
+    const adminFeedback = (id: number, headers: Record<string, string> = adminHeader()) =>
+        request(app).post(`/admin/posts/${id}/feedback`).set(headers)
+
+    it("requires the admin key", async () => {
+        const post = await createPost(author.id)
+        expect((await adminFeedback(post.id, {})).status).toBe(401)
+    })
+
+    it("404s on a missing post", async () => {
+        expect((await adminFeedback(9999)).status).toBe(404)
+    })
+
+    it("gives feedback on a post", async () => {
+        const post = await createPost(author.id, { published: false })
+        vi.mocked(getDraftFeedback).mockResolvedValue("Draft tips")
+
+        const res = await adminFeedback(post.id)
+        expect(res.status).toBe(200)
+        expect(res.body).toMatchObject({ type: "draft", feedback: "Draft tips", cached: false })
+    })
+
+    it("shares the cache with the author's endpoint", async () => {
+        const post = await createPost(author.id, { published: false })
+        vi.mocked(getDraftFeedback).mockResolvedValue("Draft tips")
+
+        await feedback(post.id, author)
+        expect((await adminFeedback(post.id)).body.cached).toBe(true)
+        expect(getDraftFeedback).toHaveBeenCalledTimes(1)
     })
 })
 

@@ -4,15 +4,11 @@ import { CreatePostDto, UpdatePostDto } from "../validation/validateCreatePost.j
 import { toNum } from "../helpers/toNum.js"
 import { parsePost } from "../helpers/mdToAst.js"
 import { getUserWithEmail } from "../repos/userRepository.js"
-import { FeedbackType, Role } from "../generated/prisma/enums.js"
-import { getLikesByPostId } from "../repos/likeRepository.js"
-import { countCommentsAfter, getAllCommentsOnPostDb } from "../repos/commentsRepository.js"
-import { feedbackInputHash, getDraftFeedback, getPublishedFeedback } from "../services/aiFeedback.js"
-import { getCachedFeedback, saveFeedback } from "../repos/feedbackRepository.js"
+import { Role } from "../generated/prisma/enums.js"
+import { getFeedbackForPost } from "../services/postFeedback.js"
 
 const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
-const NEW_COMMENTS_BEFORE_REFRESH = 3
 
 export const getAllPosts =
     (admin = false) =>
@@ -85,39 +81,12 @@ export const deletePost = async (req: Request, res: Response) => {
     return res.json({ message: "Deleted Post" })
 }
 
-export const getFeedback = async (req: Request, res: Response) => {
-    const id = Number(req.params.id)
+export const getFeedback =
+    (admin = false) =>
+    async (req: Request, res: Response) => {
+        const post = await getPostById(Number(req.params.id), true)
+        if (!post) return res.status(404).json({ message: "Post not found" })
+        if (!admin && post.userId !== req.user!.id) return res.status(403).json({ message: "Forbidden" })
 
-    const post = await getPostById(id, true)
-    if (!post) return res.status(404).json({ message: "Post not found" })
-    if (post.userId !== req.user!.id) return res.status(403).json({ message: "Forbidden" })
-
-    const type = post.published ? FeedbackType.published : FeedbackType.draft
-    const inputHash = feedbackInputHash(type, post)
-
-    const cached = await getCachedFeedback(id, type)
-    if (cached && cached.inputHash === inputHash) {
-        const newComments = type === FeedbackType.published ? await countCommentsAfter(id, cached.lastCommentId) : 0
-        if (newComments < NEW_COMMENTS_BEFORE_REFRESH) {
-            return res.json({ type, feedback: cached.feedback, cached: true, generatedAt: cached.generatedAt })
-        }
+        return res.json(await getFeedbackForPost(post))
     }
-
-    let feedback: string
-    let lastCommentId: number | null = null
-    if (type === FeedbackType.draft) {
-        feedback = await getDraftFeedback(post)
-    } else {
-        const likes = await getLikesByPostId(id)
-        const comments = await getAllCommentsOnPostDb(id)
-        if (comments.length > 0) lastCommentId = Math.max(...comments.map(c => c.id))
-        feedback = await getPublishedFeedback(
-            post,
-            likes,
-            comments.map(c => c.text)
-        )
-    }
-
-    const saved = await saveFeedback(id, type, feedback, inputHash, lastCommentId)
-    return res.json({ type, feedback, cached: false, generatedAt: saved.generatedAt })
-}
