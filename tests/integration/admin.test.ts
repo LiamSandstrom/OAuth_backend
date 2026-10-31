@@ -6,7 +6,7 @@ import { adminHeader, createComment, createPost, createUser, prisma } from "./he
 let author: Awaited<ReturnType<typeof createUser>>
 
 beforeEach(async () => {
-    author = await createUser("AUTHOR")
+    author = await createUser("AUTHOR", process.env.ADMIN_EMAIL)
 })
 
 describe("API key", () => {
@@ -41,7 +41,29 @@ describe("/admin/posts", () => {
         expect(await prisma.post.count()).toBe(1)
     })
 
-    it("400s when there is no author to own the post", async () => {
+    it("assigns the post to the ADMIN_EMAIL user, not the first author", async () => {
+        await prisma.user.update({ where: { id: author.id }, data: { email: "someone@test.local" } })
+        await createUser("AUTHOR")
+        const admin = await createUser("AUTHOR", process.env.ADMIN_EMAIL)
+
+        const res = await request(app)
+            .post("/admin/posts")
+            .set(adminHeader())
+            .send({ title: "New post", content: "# Fresh content here" })
+        expect(res.status).toBe(201)
+        expect(res.body.userId).toBe(admin.id)
+    })
+
+    it("400s when no user has ADMIN_EMAIL", async () => {
+        await prisma.user.update({ where: { id: author.id }, data: { email: "someone@test.local" } })
+        const res = await request(app)
+            .post("/admin/posts")
+            .set(adminHeader())
+            .send({ title: "New post", content: "# Fresh content here" })
+        expect(res.status).toBe(400)
+    })
+
+    it("400s when the ADMIN_EMAIL user isn't an AUTHOR", async () => {
         await prisma.user.update({ where: { id: author.id }, data: { role: "USER" } })
         const res = await request(app)
             .post("/admin/posts")

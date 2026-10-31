@@ -5,10 +5,10 @@ import { Provider, Role } from "../../src/generated/prisma/enums.js"
 let seq = 0
 const unique = () => `${Date.now().toString(36)}${seq++}`
 
-export async function createUser(role: Role = Role.USER) {
+export async function createUser(role: Role = Role.USER, email?: string) {
     const id = unique()
     return prisma.user.create({
-        data: { username: `user_${id}`, email: `${id}@test.local`, role }
+        data: { username: `user_${id}`, email: email ?? `${id}@test.local`, role }
     })
 }
 

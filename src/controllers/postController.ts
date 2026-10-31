@@ -3,7 +3,8 @@ import { createPost, deletePostById, getAllPostsDb, getPostById, updatePostFromI
 import { CreatePostDto, UpdatePostDto } from "../validation/validateCreatePost.js"
 import { toNum } from "../helpers/toNum.js"
 import { parsePost } from "../helpers/mdToAst.js"
-import { getFirstAuthor } from "../repos/userRepository.js"
+import { getUserWithEmail } from "../repos/userRepository.js"
+import { Role } from "../generated/prisma/enums.js"
 
 const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
@@ -24,8 +25,10 @@ export const getAllPosts =
 export const uploadPost = async (req: Request, res: Response) => {
     const body = req.body as CreatePostDto
 
-    const author = await getFirstAuthor()
-    if (!author) return res.status(400).json({ message: "No AUTHOR user exists to own the post" })
+    const author = await getUserWithEmail(process.env.ADMIN_EMAIL!)
+    if (!author || author.role !== Role.AUTHOR) {
+        return res.status(400).json({ message: "ADMIN_EMAIL must belong to an existing AUTHOR user" })
+    }
 
     const post = await createPost({
         title: body.title,

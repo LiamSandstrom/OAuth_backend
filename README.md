@@ -63,6 +63,7 @@ Starts Postgres, runs the migrations and serves the API on `http://localhost:300
 | `DATABASE_URL` | Postgres connection string |
 | `JWT_SECRET` | Signs the login cookie |
 | `ADMIN_API_KEY` | Key for `/admin` and the CLI |
+| `ADMIN_EMAIL` | Email of the `AUTHOR` that owns posts created with the CLI. Log in with OAuth once to create the user |
 | `NODE_ENV` | `development` / `production` |
 | `GOOGLE_*`, `GITHUB_*` | OAuth client id, secret and callback url |
 | `CORS_ORIGIN` | Optional. Comma separated frontend origins allowed to use the cookie |
@@ -197,4 +198,4 @@ blogapi get-comment < --id | --text >
 blogapi delete-comment $id
 ```
 
-Reads `BASE_URL` and `ADMIN_API_KEY` from env or a `.env` file. New posts are drafts until you `publish` them.
+Reads `BASE_URL` and `ADMIN_API_KEY` from env or a `.env` file. New posts belong to the `ADMIN_EMAIL` user and are drafts until you `publish` them.

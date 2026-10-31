@@ -1,5 +1,4 @@
 import { AccountProviderInput } from "../types/index.js"
-import { Role } from "../generated/prisma/enums.js"
 import { AdminUpdateUserDto, UpdateUserDto } from "../validation/validateUser.js"
 import { prisma } from "./client.js"
 
@@ -94,12 +93,5 @@ export const updateUserFromId = (id: number, data: UpdateUserDto | AdminUpdateUs
     return prisma.user.update({
         where: { id },
         data
-    })
-}
-
-export const getFirstAuthor = () => {
-    return prisma.user.findFirst({
-        where: { role: Role.AUTHOR },
-        orderBy: { id: "asc" }
     })
 }
