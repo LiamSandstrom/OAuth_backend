@@ -5,6 +5,9 @@ import { toNum } from "../helpers/toNum.js"
 import { parsePost } from "../helpers/mdToAst.js"
 import { getUserWithEmail } from "../repos/userRepository.js"
 import { Role } from "../generated/prisma/enums.js"
+import { getLikesByPostId } from "../repos/likeRepository.js"
+import { getAllCommentsOnPostDb } from "../repos/commentsRepository.js"
+import { getDraftFeedback, getPublishedFeedback } from "../services/aiFeedback.js"
 
 const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
@@ -78,4 +81,27 @@ export const deletePost = async (req: Request, res: Response) => {
 
     await deletePostById(id)
     return res.json({ message: "Deleted Post" })
+}
+
+export const getFeedback = async (req: Request, res: Response) => {
+    const id = Number(req.params.id)
+
+    const post = await getPostById(id, true)
+    if (!post) return res.status(404).json({ message: "Post not found" })
+    if (post.userId !== req.user!.id) return res.status(403).json({ message: "Forbidden" })
+
+    if (!post.published) {
+        const feedback = await getDraftFeedback(post)
+        return res.json({ type: "draft", feedback })
+    }
+
+    const likes = await getLikesByPostId(id)
+    const comments = await getAllCommentsOnPostDb(id)
+
+    const feedback = await getPublishedFeedback(
+        post,
+        likes,
+        comments.map(c => c.text)
+    )
+    return res.json({ type: "published", feedback })
 }

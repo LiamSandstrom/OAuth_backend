@@ -33,7 +33,7 @@ There is one author: the user whose email is `ADMIN_EMAIL`. The role is set when
 |---|---|---|
 | Visitor | No cookie | Read published posts, comments and likes |
 | `USER` | OAuth cookie | Comment, like, manage own account |
-| `AUTHOR` | Logged in as `ADMIN_EMAIL` | All of the above + see drafts, users and accounts |
+| `AUTHOR` | Logged in as `ADMIN_EMAIL` | All of the above + see drafts, users and accounts, get AI feedback on own posts |
 | Admin | `Authorization: Bearer $ADMIN_API_KEY` | Create, edit and publish posts, moderate comments and users. Used by the CLI |
 
 ### Errors
@@ -68,6 +68,7 @@ Starts Postgres, runs the migrations and serves the API on `http://localhost:300
 | `ADMIN_EMAIL` | The blog owner. Logging in with this email gives the `AUTHOR` role, and posts created with the CLI belong to this user. Log in with OAuth once to create the user |
 | `NODE_ENV` | `development` / `production` |
 | `GOOGLE_*`, `GITHUB_*` | OAuth client id, secret and callback url |
+| `ANTHROPIC_API_KEY` | Optional. Needed for AI feedback on posts |
 | `CORS_ORIGIN` | Optional. Comma separated frontend origins allowed to use the cookie |
 | `PORT` | Optional. Defaults to `3000` |
 
@@ -103,6 +104,7 @@ npm run typecheck
 |---|---|---|
 | `GET` | `/posts` | Public |
 | `GET` | `/posts/:id` | Public |
+| `POST` | `/posts/:id/feedback` | `AUTHOR`, own post |
 | `GET` | `/posts/admin` | `AUTHOR` |
 | `GET` | `/posts/admin/:id` | `AUTHOR` |
 | `GET` | `/posts/:id/comments` | Public |
@@ -115,6 +117,8 @@ npm run typecheck
 | `DELETE` | `/posts/:id/likes` | Logged in |
 
 `GET /posts` takes `?title=`, `?page=`, `?limit=` (default 20, max 100) and `?withComments=true`. `GET /posts/:id` returns the parsed post, add `?format=raw` for the Markdown.
+
+`POST /posts/:id/feedback` asks Claude for feedback on one of your posts. Drafts get feedback on the writing itself; published posts also send the like count and up to 50 comments (text only, no usernames) so the feedback covers how readers responded. Limited to 10 requests per hour, and returns 503 if the AI service is unavailable.
 
 ### Users
 | Method | Path | Access |

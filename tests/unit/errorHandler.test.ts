@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import type { Request, Response } from "express"
 import { Prisma } from "../../src/generated/prisma/client.js"
 import { errorHandler } from "../../src/middleware/errorHandler.js"
+import { FeedbackUnavailableError } from "../../src/services/aiFeedback.js"
 
 const mockRes = () => {
     const res = {} as Response
@@ -18,6 +19,12 @@ beforeEach(() => {
 })
 
 describe("errorHandler", () => {
+    it("maps an unavailable AI to 503", () => {
+        const res = mockRes()
+        errorHandler(new FeedbackUnavailableError(), {} as Request, res, vi.fn())
+        expect(res.status).toHaveBeenCalledWith(503)
+    })
+
     it.each([
         ["P2025", 404],
         ["P2003", 404],

@@ -35,6 +35,7 @@
     "homepage": "https://github.com/LiamSandstrom/OAuth_backend#readme",
     "dependencies": {
         "@2toad/profanity": "^3.3.0",
+        "@anthropic-ai/sdk": "^0.135.0",
         "@prisma/adapter-pg": "^7.7.0",
         "@prisma/client": "^7.7.0",
         "cookie-parser": "^1.4.7",
