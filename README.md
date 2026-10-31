@@ -2,201 +2,111 @@
 
 [![CI](https://github.com/LiamSandstrom/OAuth_backend/actions/workflows/ci.yml/badge.svg)](https://github.com/LiamSandstrom/OAuth_backend/actions/workflows/ci.yml)
 
-A backend for a blog. Users sign in with Google or GitHub, write posts in Markdown and easily post and manage the blog from the CLI.
+A backend for a blog. Users sign in with Google or GitHub, posts are written in Markdown and the blog is managed from a Go CLI.
 Primarily written to learn OAuth & make a CLI friendly Blog :)
 
-## Stack
-
-- **API** — Node.js + Express 5 + TypeScript
-- **DB** — PostgreSQL + Prisma
-- **Auth** — Passport (Google & GitHub OAuth) + JWT in an httpOnly cookie
-- **CLI** — Go (`blogapi`)
-- **Tests** — Vitest + Supertest
-- **Infra** — Docker, GitHub Actions
+**Stack:** Node.js, Express 5, TypeScript, PostgreSQL + Prisma, Passport (Google & GitHub OAuth), JWT, Go, Vitest, Docker, GitHub Actions
 
 ## How it works
 
 ### Auth
 
-Signing in with Google or GitHub gives you a JWT in an httpOnly cookie. One user can have both providers linked:
+Signing in gives you a JWT in an httpOnly cookie that lasts one day. One user can link both providers:
 
-- Logging in with a new provider while already signed in links it to your account.
-- A provider that already belongs to someone else can't be linked.
-- If a new login has the same email as an existing user, it's refused instead of silently merged. Otherwise anyone controlling that email on another provider could take over the account. Log in first, then link.
+- Logging in with a new provider while signed in links it to your account. A provider that belongs to someone else can't be linked.
+- A new login with the same email as an existing user is refused instead of merged, so nobody can take over an account through another provider. Log in first, then link.
 - You can't unlink your last provider.
 
-There is one author: the user whose email is `ADMIN_EMAIL`. The role is set when that user logs in, so changing `ADMIN_EMAIL` and logging in again moves it. Nobody can change their email to `ADMIN_EMAIL` or set roles through the API.
-
-### Roles
+There is one author: the user whose email is `ADMIN_EMAIL`. The role is set on login, and nobody can set roles or take that email through the API.
 
 | Who | How | Can |
 |---|---|---|
 | Visitor | No cookie | Read published posts, comments and likes |
 | `USER` | OAuth cookie | Comment, like, manage own account |
-| `AUTHOR` | Logged in as `ADMIN_EMAIL` | All of the above + see drafts, users and accounts, get AI feedback on own posts |
+| `AUTHOR` | Logged in as `ADMIN_EMAIL` | All of the above + see drafts, users and accounts, AI feedback on own posts |
 | Admin | `Authorization: Bearer $ADMIN_API_KEY` | Create, edit and publish posts, moderate comments and users. Used by the CLI |
 
-### Errors
+Errors always look like `{ "message": "..." }` with a matching status (400, 401, 403, 404, 409, 429).
 
-Every error response looks like `{ "message": "..." }` with a matching status code (400 validation, 401 not logged in, 403 not yours, 404, 409 duplicate, 429 rate limited).
+### AI feedback
+
+`POST /posts/:id/feedback` asks Claude for feedback on your post. Drafts get feedback on the writing. Published posts also send the like count and up to 50 comments (text only, no usernames).
+
+Answers are cached in the database and only regenerated when the post or prompt changes, or a published post gets 3 new comments. The CLI uses `/admin/posts/:id/feedback`, which shares the cache. Limited to 10 requests per hour, and returns 503 if the AI is unavailable.
+
+### Posts
+
+Posts are Markdown with YAML frontmatter and can embed custom components with [remark directives](https://github.com/remarkjs/remark-directive) like `:::mycomponent{}`. They're stored as Markdown and parsed into an AST when requested, so the frontend decides how each node renders without touching the backend.
 
 ## Setup
 
 ```bash
 npm install
-cp example.env .env         # You still need to fill in OAuth providers and DB
+cp example.env .env         # Fill in OAuth providers and DB
 npx prisma migrate dev
 npm run dev
 ```
 
-### Demo data
-
-Log in once with your `ADMIN_EMAIL` account, then:
+Or with Docker, which starts Postgres, runs migrations and serves the API on `http://localhost:3000`:
 
 ```bash
-npm run db:seed
-```
-
-Adds a few posts (one of them a draft) with comments and likes from demo readers. It only replaces its own demo posts and `@demo.local` readers, so it's safe to run again, and it refuses to run when `NODE_ENV` is `production`.
-
-### Docker
-
-```bash
-cp example.env .env         # Fill in OAuth providers, DATABASE_URL is set by compose
 docker compose up --build
 ```
 
-Starts Postgres, runs the migrations and serves the API on `http://localhost:3000`. To seed the Docker database, log in once and run `docker compose run --rm migrate npm run db:seed`.
+For demo data, log in once with your `ADMIN_EMAIL` account and run `npm run db:seed` (Docker: `docker compose run --rm migrate npm run db:seed`). It only replaces its own demo posts and readers and refuses to run in production.
 
-### Env
-
-| Variable | |
+| Env | |
 |---|---|
 | `DATABASE_URL` | Postgres connection string |
 | `JWT_SECRET` | Signs the login cookie |
 | `ADMIN_API_KEY` | Key for `/admin` and the CLI |
-| `ADMIN_EMAIL` | The blog owner. Logging in with this email gives the `AUTHOR` role, and posts created with the CLI belong to this user. Log in with OAuth once to create the user |
+| `ADMIN_EMAIL` | The blog owner and only author. Log in once to create the user |
 | `NODE_ENV` | `development` / `production` |
 | `GOOGLE_*`, `GITHUB_*` | OAuth client id, secret and callback url |
-| `ANTHROPIC_API_KEY` | Optional. Needed for AI feedback on posts |
-| `CORS_ORIGIN` | Optional. Comma separated frontend origins allowed to use the cookie |
+| `ANTHROPIC_API_KEY` | Optional. Needed for AI feedback |
+| `CORS_ORIGIN` | Optional. Comma separated frontend origins |
 | `PORT` | Optional. Defaults to `3000` |
 
 ## Testing
 
-Tests use [Vitest](https://vitest.dev) and [Supertest](https://github.com/ladjs/supertest), split into two projects:
-
-- **Unit** (`tests/unit`): validation schemas, helpers, middleware and the OAuth login/linking logic, with the DB mocked out.
-- **Integration** (`tests/integration`): every route hit over HTTP against a real Postgres, covering auth, ownership checks and error codes.
-
-Integration tests run against a throwaway Postgres on port 5433 configured in `.env.test`, and refuse to run against any database whose name doesn't contain `test`.
+Unit tests mock the database. Integration tests hit every route over HTTP against a throwaway Postgres on port 5433, and refuse to run against a database without `test` in its name.
 
 ```bash
 npm run test:db:up        # start the test database
-npm test                  # run everything
+npm test                  # unit + integration
 npm run test:unit         # no database needed
-npm run test:coverage
-npm run test:db:down
+npm run lint && npm run typecheck
 ```
 
-CI runs lint, format check, type check and the full test suite on every push, and builds the CLI and Docker image.
-
-```bash
-npm run lint
-npm run format
-npm run typecheck
-```
+CI runs lint, format, typecheck, all tests and the Go tests on every push, and builds the CLI and Docker image.
 
 ## Routes
 
-### Posts
-| Method | Path | Access |
-|---|---|---|
-| `GET` | `/posts` | Public |
-| `GET` | `/posts/:id` | Public |
-| `POST` | `/posts/:id/feedback` | `AUTHOR`, own post |
-| `GET` | `/posts/admin` | `AUTHOR` |
-| `GET` | `/posts/admin/:id` | `AUTHOR` |
-| `GET` | `/posts/:id/comments` | Public |
-| `GET` | `/posts/:id/comments/:commentId` | Public |
-| `POST` | `/posts/:id/comments` | Logged in |
-| `PATCH` | `/posts/:id/comments/:commentId` | Comment owner |
-| `DELETE` | `/posts/:id/comments/:commentId` | Comment or post owner |
-| `GET` | `/posts/:id/likes` | Public |
-| `POST` | `/posts/:id/likes` | Logged in |
-| `DELETE` | `/posts/:id/likes` | Logged in |
-
-`GET /posts` takes `?title=`, `?page=`, `?limit=` (default 20, max 100) and `?withComments=true`. `GET /posts/:id` returns the parsed post, add `?format=raw` for the Markdown. `GET /posts/admin` and `GET /admin/posts` take the same query and also `?published=true|false`, the public listing always returns only published posts.
-
-`POST /posts/:id/feedback` asks Claude for feedback on one of your posts. Drafts get feedback on the writing itself; published posts also send the like count and up to 50 comments (text only, no usernames) so the feedback covers how readers responded. Answers are cached in the database: a draft is only sent again when its title, content or the prompt changes, and a published post when that changes or it has 3 new comments since the last answer. The response says whether it was `cached`. The CLI uses `POST /admin/posts/:id/feedback`, which shares the same cache. Limited to 10 requests per hour per user, and returns 503 if the AI service is unavailable.
-
-### Users
-| Method | Path | Access |
-|---|---|---|
-| `GET` | `/users` | `AUTHOR` |
-| `GET` | `/users/protected` | Logged in |
-| `GET` | `/users/:id` | `AUTHOR` |
-| `PATCH` | `/users/:id` | Self |
-| `DELETE` | `/users/:id` | Self |
-
-### Accounts
-| Method | Path | Access |
-|---|---|---|
-| `GET` | `/accounts` | `AUTHOR` |
-| `GET` | `/accounts/:id` | Owner or `AUTHOR` |
-| `DELETE` | `/accounts/:id` | Owner, unlinks the provider |
-
-### Auth
-| Method | Path |
+| Path | Methods |
 |---|---|
-| `GET` | `/auth/google` |
-| `GET` | `/auth/google/callback` |
-| `GET` | `/auth/github` |
-| `GET` | `/auth/github/callback` |
-| `GET` | `/auth/failure` |
-| `POST` | `/auth/logout` |
+| `/posts` | `GET` public |
+| `/posts/:id` | `GET` public, `?format=raw` for Markdown |
+| `/posts/:id/feedback` | `POST` author, own post |
+| `/posts/admin`, `/posts/admin/:id` | `GET` author, includes drafts |
+| `/posts/:id/comments` | `GET` public, `POST` logged in |
+| `/posts/:id/comments/:commentId` | `GET` public, `PATCH` comment owner, `DELETE` comment or post owner |
+| `/posts/:id/likes` | `GET` public, `POST` / `DELETE` logged in |
+| `/users` | `GET` author |
+| `/users/protected` | `GET` logged in |
+| `/users/:id` | `GET` author, `PATCH` / `DELETE` self |
+| `/accounts` | `GET` author |
+| `/accounts/:id` | `GET` owner or author, `DELETE` owner (unlinks provider) |
+| `/auth/google`, `/auth/github` + `/callback` | OAuth login, 20 requests per 15 min |
+| `/auth/failure`, `/auth/logout` | `GET`, `POST` |
+| `/admin/posts` | `GET`, `POST` |
+| `/admin/posts/:id` | `GET`, `PATCH`, `DELETE` |
+| `/admin/posts/:id/feedback` | `POST` |
+| `/admin/users/:id` | `PATCH`, `DELETE` |
+| `/admin/comments` | `GET` |
+| `/admin/comments/:commentId` | `DELETE` |
+| `/health` | `GET`, checks the database |
 
-Rate limited to 20 requests per 15 minutes.
-
-### Admin
-All need the `ADMIN_API_KEY`.
-
-| Method | Path |
-|---|---|
-| `POST` | `/admin/posts` |
-| `GET` | `/admin/posts` |
-| `GET` | `/admin/posts/:id` |
-| `PATCH` | `/admin/posts/:id` |
-| `DELETE` | `/admin/posts/:id` |
-| `POST` | `/admin/posts/:id/feedback` |
-| `PATCH` | `/admin/users/:id` |
-| `DELETE` | `/admin/users/:id` |
-| `GET` | `/admin/comments` |
-| `DELETE` | `/admin/comments/:commentId` |
-
-### Health
-| Method | Path |
-|---|---|
-| `GET` | `/health` |
-
-## Post Format
-
-Posts are written in Markdown with YAML frontmatter. You can embed custom components using [remark directives](https://github.com/remarkjs/remark-directive):
-
-```markdown
----
-title: My Post
----
-
-# Hello
-
-:::mycomponent{}
-:::
-
-Regular content.
-```
-
-Posts are stored as Markdown and parsed into an AST when requested. The frontend can update or create new components freely without touching the backend.
+Post listings take `?title=`, `?page=`, `?limit=` (default 20, max 100) and `?withComments=true`. Author and admin listings also take `?published=true|false`.
 
 ## Admin CLI
 
@@ -217,6 +127,4 @@ blogapi delete-comment $id
 blogapi feedback $id
 ```
 
-Output is made for people: lists are tables, actions print one line and feedback is Markdown. Add `--json` to any command for the raw API response, e.g. `blogapi posts --json | jq -r '.[0].content'`.
-
-Reads `BASE_URL` and `ADMIN_API_KEY` from env or a `.env` file. New posts belong to the `ADMIN_EMAIL` user and are drafts until you `publish` them.
+Output is made to be human readable, add `--json` for the raw API response.`blogapi posts --json | jq -r '.[0].content'`.
