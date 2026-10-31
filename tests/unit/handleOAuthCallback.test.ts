@@ -52,6 +52,17 @@ describe("handleOAuthCallback", () => {
         expect(res.redirect).toHaveBeenCalledWith("/users/protected")
     })
 
+    it("makes the token and cookie expire after one day", () => {
+        passportResolves(null, { id: 7, role: "AUTHOR" })
+        const res = mockRes()
+        handleOAuthCallback("google")({} as Request, res, next)
+
+        const [, token, options] = vi.mocked(res.cookie).mock.calls[0] as unknown as [string, string, object]
+        const { iat, exp } = jwt.decode(token) as { iat: number; exp: number }
+        expect(exp - iat).toBe(24 * 60 * 60)
+        expect(options).toMatchObject({ maxAge: 24 * 60 * 60 * 1000 })
+    })
+
     it("redirects to /auth/failure with an encoded message when login is refused", () => {
         passportResolves(null, false, { message: "No email & stuff" })
         const res = mockRes()

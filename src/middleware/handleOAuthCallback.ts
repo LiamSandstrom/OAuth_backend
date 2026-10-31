@@ -13,11 +13,11 @@ export const handleOAuthCallback = (provider: string) => (req: Request, res: Res
                 const msg = encodeURIComponent(info?.message || "Something went wrong")
                 return res.redirect(`/auth/failure?message=${msg}`)
             }
-            const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET!, { expiresIn: "7d" })
+            const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET!, { expiresIn: "1d" })
             res.cookie("jwt_token", token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                maxAge: 24 * 60 * 60 * 1000,
                 sameSite: "lax"
             })
             res.redirect("/users/protected")
