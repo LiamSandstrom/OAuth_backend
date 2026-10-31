@@ -17,6 +17,7 @@ services:
       context: .
       target: builder
     command: npx prisma migrate deploy
+    env_file: .env
     environment:
       DATABASE_URL: postgresql://blog:blog@db:5432/blog
     depends_on:

@@ -4,5 +4,5 @@
         "rootDir": ".",
         "noEmit": true
     },
-    "include": ["src", "types", "tests", "vitest.config.ts"]
+    "include": ["src", "types", "tests", "prisma", "vitest.config.ts"]
 }

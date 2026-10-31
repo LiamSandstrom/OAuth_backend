@@ -49,6 +49,16 @@ npx prisma migrate dev
 npm run dev
 ```
 
+### Demo data
+
+Log in once with your `ADMIN_EMAIL` account, then:
+
+```bash
+npm run db:seed
+```
+
+Adds a few posts (one of them a draft) with comments and likes from demo readers. It only replaces its own demo posts and `@demo.local` readers, so it's safe to run again, and it refuses to run when `NODE_ENV` is `production`.
+
 ### Docker
 
 ```bash
@@ -56,7 +66,7 @@ cp example.env .env         # Fill in OAuth providers, DATABASE_URL is set by co
 docker compose up --build
 ```
 
-Starts Postgres, runs the migrations and serves the API on `http://localhost:3000`.
+Starts Postgres, runs the migrations and serves the API on `http://localhost:3000`. To seed the Docker database, log in once and run `docker compose run --rm migrate npm run db:seed`.
 
 ### Env
 

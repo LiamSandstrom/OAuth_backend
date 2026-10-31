@@ -12,6 +12,7 @@
         "test:db:down": "docker compose -f docker-compose.test.yml down",
         "clean": "rm -rf dist",
         "generate": "npx prisma generate",
+        "db:seed": "tsx prisma/seed.ts",
         "build": "npm run clean && npm run generate && npx tsc",
         "prestart": "npm run build",
         "start": "node dist/server.js",
