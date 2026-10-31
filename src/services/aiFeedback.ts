@@ -1,4 +1,6 @@
+import { createHash } from "node:crypto"
 import Anthropic, { APIError } from "@anthropic-ai/sdk"
+import { FeedbackType } from "../generated/prisma/enums.js"
 
 const DRAFT_PROMPT = `You review unpublished drafts for a personal tech blog. The author wants honest, specific feedback before publishing.
 
@@ -77,3 +79,8 @@ export const getDraftFeedback = (post: PostInput) => ask(DRAFT_PROMPT, formatPos
 
 export const getPublishedFeedback = (post: PostInput, likes: number, comments: string[]) =>
     ask(PUBLISHED_PROMPT, `${formatPost(post)}\n\n${formatEngagement(likes, comments)}`)
+
+export const feedbackInputHash = (type: FeedbackType, post: PostInput) => {
+    const prompt = type === FeedbackType.draft ? DRAFT_PROMPT : PUBLISHED_PROMPT
+    return createHash("sha256").update(prompt).update(formatPost(post)).digest("hex")
+}

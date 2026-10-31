@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { APIConnectionError, APIError } from "@anthropic-ai/sdk"
-import { FeedbackUnavailableError, getDraftFeedback, getPublishedFeedback } from "../../src/services/aiFeedback.js"
+import {
+    FeedbackUnavailableError,
+    feedbackInputHash,
+    getDraftFeedback,
+    getPublishedFeedback
+} from "../../src/services/aiFeedback.js"
 
 const { create } = vi.hoisted(() => ({ create: vi.fn() }))
 
@@ -88,5 +93,18 @@ describe("AI responses", () => {
         const err = new APIError(400, undefined, "bad request", undefined)
         create.mockRejectedValue(err)
         await expect(getDraftFeedback(post)).rejects.toBe(err)
+    })
+})
+
+describe("feedbackInputHash", () => {
+    it("is the same for the same post", () => {
+        expect(feedbackInputHash("draft", post)).toBe(feedbackInputHash("draft", { ...post }))
+    })
+
+    it("changes with the title, the content and the prompt", () => {
+        const hash = feedbackInputHash("draft", post)
+        expect(feedbackInputHash("draft", { ...post, title: "Other" })).not.toBe(hash)
+        expect(feedbackInputHash("draft", { ...post, content: "Other" })).not.toBe(hash)
+        expect(feedbackInputHash("published", post)).not.toBe(hash)
     })
 })

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import request from "supertest"
 import { app } from "../../src/app.js"
 import { authCookie, createComment, createPost, createUser, prisma } from "./helpers.js"
+import { feedbackLimiter } from "../../src/middleware/rateLimit.js"
 import { FeedbackUnavailableError, getDraftFeedback, getPublishedFeedback } from "../../src/services/aiFeedback.js"
 
 vi.mock("../../src/services/aiFeedback.js", async importOriginal => ({
@@ -17,6 +18,7 @@ beforeEach(async () => {
     vi.resetAllMocks()
     author = await createUser("AUTHOR")
     reader = await createUser()
+    await feedbackLimiter.resetKey(String(author.id))
 })
 
 const feedback = (id: number, as?: User) => {
@@ -52,7 +54,7 @@ describe("POST /posts/:id/feedback", () => {
 
         const res = await feedback(post.id, author)
         expect(res.status).toBe(200)
-        expect(res.body).toMatchObject({ type: "draft", feedback: "Tighten the intro" })
+        expect(res.body).toMatchObject({ type: "draft", feedback: "Tighten the intro", cached: false })
         expect(getDraftFeedback).toHaveBeenCalledWith(
             expect.objectContaining({ title: post.title, content: post.content })
         )
@@ -68,7 +70,7 @@ describe("POST /posts/:id/feedback", () => {
 
         const res = await feedback(post.id, author)
         expect(res.status).toBe(200)
-        expect(res.body).toMatchObject({ type: "published", feedback: "Readers want more examples" })
+        expect(res.body).toMatchObject({ type: "published", feedback: "Readers want more examples", cached: false })
 
         const [sentPost, likes, comments] = vi.mocked(getPublishedFeedback).mock.calls[0]
         expect(sentPost).toMatchObject({ title: post.title, content: post.content })
@@ -88,6 +90,97 @@ describe("POST /posts/:id/feedback", () => {
     })
 })
 
+describe("feedback cache", () => {
+    const draftReply = () => vi.mocked(getDraftFeedback).mockResolvedValue("Draft tips")
+    const publishedReply = () => vi.mocked(getPublishedFeedback).mockResolvedValue("Reader tips")
+
+    it("reuses draft feedback while the post is unchanged", async () => {
+        const post = await createPost(author.id, { published: false })
+        draftReply()
+
+        await feedback(post.id, author)
+        const res = await feedback(post.id, author)
+        expect(res.body).toMatchObject({ type: "draft", feedback: "Draft tips", cached: true })
+        expect(getDraftFeedback).toHaveBeenCalledTimes(1)
+    })
+
+    it("asks again when the draft changes", async () => {
+        const post = await createPost(author.id, { published: false })
+        draftReply()
+
+        await feedback(post.id, author)
+        await prisma.post.update({ where: { id: post.id }, data: { content: "# Rewritten\n\nNew text." } })
+        const res = await feedback(post.id, author)
+        expect(res.body.cached).toBe(false)
+        expect(getDraftFeedback).toHaveBeenCalledTimes(2)
+    })
+
+    it("doesn't reuse draft feedback once the post is published", async () => {
+        const post = await createPost(author.id, { published: false })
+        draftReply()
+        publishedReply()
+
+        await feedback(post.id, author)
+        await prisma.post.update({ where: { id: post.id }, data: { published: true } })
+        const res = await feedback(post.id, author)
+        expect(res.body).toMatchObject({ type: "published", feedback: "Reader tips", cached: false })
+    })
+
+    it("reuses published feedback until there are 3 new comments", async () => {
+        const post = await createPost(author.id)
+        publishedReply()
+
+        await feedback(post.id, author)
+        await createComment(post.id, reader.id, "First")
+        await createComment(post.id, reader.id, "Second")
+        expect((await feedback(post.id, author)).body.cached).toBe(true)
+
+        await createComment(post.id, reader.id, "Third")
+        expect((await feedback(post.id, author)).body.cached).toBe(false)
+        expect(getPublishedFeedback).toHaveBeenCalledTimes(2)
+    })
+
+    it("counts replaced comments as new", async () => {
+        const post = await createPost(author.id)
+        const old = await Promise.all(["a", "b", "c"].map(text => createComment(post.id, reader.id, text)))
+        publishedReply()
+
+        await feedback(post.id, author)
+        await prisma.comment.deleteMany({ where: { id: { in: old.map(c => c.id) } } })
+        for (const text of ["d", "e", "f"]) await createComment(post.id, reader.id, text)
+
+        expect((await feedback(post.id, author)).body.cached).toBe(false)
+    })
+
+    it("asks again when a published post is edited", async () => {
+        const post = await createPost(author.id)
+        publishedReply()
+
+        await feedback(post.id, author)
+        await prisma.post.update({ where: { id: post.id }, data: { title: "A better title" } })
+        expect((await feedback(post.id, author)).body.cached).toBe(false)
+    })
+
+    it("doesn't cache a failed request", async () => {
+        const post = await createPost(author.id, { published: false })
+        vi.mocked(getDraftFeedback).mockRejectedValueOnce(new FeedbackUnavailableError())
+        draftReply()
+
+        expect((await feedback(post.id, author)).status).toBe(503)
+        const res = await feedback(post.id, author)
+        expect(res.body).toMatchObject({ feedback: "Draft tips", cached: false })
+    })
+
+    it("is deleted with the post", async () => {
+        const post = await createPost(author.id, { published: false })
+        draftReply()
+
+        await feedback(post.id, author)
+        await prisma.post.delete({ where: { id: post.id } })
+        expect(await prisma.postFeedback.count()).toBe(0)
+    })
+})
+
 describe("feedback rate limiting", () => {
     it("allows 10 requests per hour", async () => {
         const post = await createPost(author.id, { published: false })
@@ -96,6 +189,7 @@ describe("feedback rate limiting", () => {
         const statuses: number[] = []
         for (let i = 0; i < 12; i++) statuses.push((await feedback(post.id, author)).status)
 
-        expect(statuses).toContain(429)
+        expect(statuses.slice(0, 10).every(s => s === 200)).toBe(true)
+        expect(statuses.slice(10)).toEqual([429, 429])
     })
 })

@@ -54,3 +54,9 @@ export const getCommentById = (id: number) => {
         where: { id }
     })
 }
+
+export const countCommentsAfter = (postId: number, commentId: number | null) => {
+    return prisma.comment.count({
+        where: { postId, ...(commentId !== null && { id: { gt: commentId } }) }
+    })
+}
