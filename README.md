@@ -3,7 +3,7 @@
 [![CI](https://github.com/LiamSandstrom/OAuth_backend/actions/workflows/ci.yml/badge.svg)](https://github.com/LiamSandstrom/OAuth_backend/actions/workflows/ci.yml)
 
 A backend for a blog. Users sign in with Google or GitHub, posts are written in Markdown and the blog is managed from a Go CLI.
-Primarily written to learn OAuth & make a CLI friendly Blog :)
+Primarily written to learn OAuth & make a CLI friendly Blog :))
 
 **Stack:** Node.js, Express 5, TypeScript, PostgreSQL + Prisma, Passport (Google & GitHub OAuth), JWT, Go, Vitest, Docker, GitHub Actions
 
